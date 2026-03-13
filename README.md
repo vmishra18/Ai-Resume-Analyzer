@@ -13,7 +13,7 @@ ATS Resume Analyzer is a production-style portfolio project that compares resume
 
 ## Current status
 
-Phase 1 foundation is in place:
+Implemented so far:
 
 - project scaffold
 - visual design system
@@ -21,13 +21,18 @@ Phase 1 foundation is in place:
 - Prisma schema
 - analysis domain types and initial scoring service
 - landing page shell and app routes
+- drag-and-drop upload form with React Hook Form + Zod
+- server-side upload endpoint and local file persistence
+- analysis session creation flow with upload metadata storage
+- analysis detail route for persisted session intake review
 
 ## Getting started
 
 1. Install dependencies.
 2. Copy `.env.example` to `.env`.
 3. Run `npm run prisma:generate`.
-4. Run `npm run dev`.
+4. Run your preferred Prisma database setup command locally.
+5. Run `npm run dev`.
 
 ## Project docs
 

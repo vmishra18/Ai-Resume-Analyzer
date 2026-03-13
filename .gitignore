@@ -12,3 +12,4 @@ build
 prisma/dev.db
 generated
 DS_Store
+uploads
