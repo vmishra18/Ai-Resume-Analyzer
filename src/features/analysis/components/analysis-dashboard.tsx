@@ -1,10 +1,13 @@
+import Link from "next/link";
+import type { Route } from "next";
 import { Activity, BriefcaseBusiness, CheckCircle2, CircleAlert, FileText, Sparkles, Target } from "lucide-react";
 
+import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { KeywordGroup } from "@/features/analysis/components/keyword-group";
 import { ScoreBreakdownChart } from "@/features/analysis/components/score-breakdown-chart";
 
-interface AnalysisDashboardProps {
+export interface AnalysisDashboardProps {
   sessionTitle: string;
   status: string;
   createdAt: string;
@@ -68,6 +71,13 @@ interface AnalysisDashboardProps {
     description: string;
     priority: string;
   }>;
+  actions?: {
+    reportHref: string;
+    shareHref: Route;
+    historyHref: Route;
+    uploadHref: Route;
+  };
+  headerBadge?: string;
 }
 
 function getScoreTone(score: number | null) {
@@ -102,7 +112,9 @@ export function AnalysisDashboard({
   matchedKeywords,
   partialKeywords,
   missingKeywords,
-  suggestions
+  suggestions,
+  actions,
+  headerBadge = "Analysis dashboard"
 }: AnalysisDashboardProps) {
   return (
     <section className="px-6 py-16 lg:px-8 lg:py-20">
@@ -112,7 +124,7 @@ export function AnalysisDashboard({
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(52,211,153,0.18),transparent_34%),radial-gradient(circle_at_bottom_left,rgba(245,106,72,0.16),transparent_32%)]" />
             <div className="relative">
               <p className="text-sm font-semibold uppercase tracking-[0.24em] text-[var(--color-brand-300)]">
-                Analysis dashboard
+                {headerBadge}
               </p>
               <div className="mt-4 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
                 <div>
@@ -131,6 +143,23 @@ export function AnalysisDashboard({
                   <p className="mt-2 text-sm text-[var(--muted-foreground)]">Status: {status}</p>
                 </div>
               </div>
+
+              {actions ? (
+                <div className="mt-6 flex flex-wrap gap-3">
+                  <Button asChild size="sm">
+                    <Link href={actions.uploadHref}>New analysis</Link>
+                  </Button>
+                  <Button asChild size="sm" variant="secondary">
+                    <a href={actions.reportHref}>Download report</a>
+                  </Button>
+                  <Button asChild size="sm" variant="secondary">
+                    <Link href={actions.shareHref}>Share view</Link>
+                  </Button>
+                  <Button asChild size="sm" variant="ghost">
+                    <Link href={actions.historyHref}>History</Link>
+                  </Button>
+                </div>
+              ) : null}
 
               <div className="mt-8 grid gap-4 md:grid-cols-4">
                 {[

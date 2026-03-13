@@ -33,6 +33,7 @@ Implemented so far:
 - keyword match results and rule-based improvement suggestions stored per analysis
 - polished analysis dashboard with reusable components and score visualization
 - saved analysis history page with trend framing and revisit links
+- downloadable analysis reports and shareable read-only result views
 
 ## Getting started
 
