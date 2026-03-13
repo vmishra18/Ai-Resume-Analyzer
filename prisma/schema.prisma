@@ -1,0 +1,146 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model AnalysisSession {
+  id                  String           @id @default(cuid())
+  title               String
+  status              AnalysisStatus   @default(PENDING)
+  overallScore        Int?
+  createdAt           DateTime         @default(now())
+  updatedAt           DateTime         @updatedAt
+  uploadedFile        UploadedFile?
+  parsedResume        ParsedResume?
+  jobDescription      JobDescription?
+  scoringSummary      ScoringSummary?
+  keywordResults      KeywordResult[]
+  suggestions         Suggestion[]
+}
+
+model UploadedFile {
+  id                String           @id @default(cuid())
+  sessionId         String           @unique
+  originalName      String
+  storagePath       String
+  mimeType          String
+  extension         String
+  sizeBytes         Int
+  uploadStatus      UploadStatus     @default(COMPLETED)
+  createdAt         DateTime         @default(now())
+  analysisSession   AnalysisSession  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+}
+
+model ParsedResume {
+  id                String           @id @default(cuid())
+  sessionId         String           @unique
+  rawText           String
+  normalizedText    String
+  summary           String?
+  hasSummary        Boolean          @default(false)
+  hasSkills         Boolean          @default(false)
+  hasExperience     Boolean          @default(false)
+  hasEducation      Boolean          @default(false)
+  hasProjects       Boolean          @default(false)
+  structureScore    Int              @default(0)
+  createdAt         DateTime         @default(now())
+  analysisSession   AnalysisSession  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+}
+
+model JobDescription {
+  id                   String           @id @default(cuid())
+  sessionId            String           @unique
+  rawText              String
+  normalizedText       String
+  title                String?
+  company              String?
+  seniority            String?
+  extractedKeywords    Json
+  mustHaveKeywords     Json
+  niceToHaveKeywords   Json
+  createdAt            DateTime         @default(now())
+  analysisSession      AnalysisSession  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+}
+
+model KeywordResult {
+  id                  String            @id @default(cuid())
+  sessionId           String
+  keyword             String
+  normalizedKeyword   String
+  category            KeywordCategory
+  matchType           KeywordMatchType
+  occurrences         Int               @default(0)
+  createdAt           DateTime          @default(now())
+  analysisSession     AnalysisSession   @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+}
+
+model ScoringSummary {
+  id                        String           @id @default(cuid())
+  sessionId                 String           @unique
+  keywordMatchScore         Int
+  mustHaveSkillScore        Int
+  sectionCompletenessScore  Int
+  roleRelevanceScore        Int
+  structureQualityScore     Int
+  alignmentScore            Int
+  bonusScore                Int              @default(0)
+  explanation               Json
+  createdAt                 DateTime         @default(now())
+  analysisSession           AnalysisSession  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+}
+
+model Suggestion {
+  id                String            @id @default(cuid())
+  sessionId         String
+  title             String
+  description       String
+  priority          SuggestionPriority
+  suggestionType    SuggestionType
+  createdAt         DateTime          @default(now())
+  analysisSession   AnalysisSession   @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+}
+
+enum AnalysisStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+enum UploadStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}
+
+enum KeywordCategory {
+  TECHNICAL_SKILL
+  SOFT_SKILL
+  TOOL
+  QUALIFICATION
+  DOMAIN
+}
+
+enum KeywordMatchType {
+  MATCHED
+  MISSING
+  PARTIAL
+}
+
+enum SuggestionPriority {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum SuggestionType {
+  KEYWORD
+  SECTION
+  STRUCTURE
+  CONTENT
+  READABILITY
+}
