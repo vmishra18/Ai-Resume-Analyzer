@@ -156,9 +156,9 @@ export function AnalysisDashboard({
               <p className="text-sm font-semibold uppercase tracking-[0.24em] text-[var(--color-brand-300)]">
                 {headerBadge}
               </p>
-              <div className="mt-4 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-                <div>
-                  <h1 className="max-w-3xl break-words font-heading text-4xl text-white sm:text-5xl">
+              <div className="mt-4 grid gap-5 lg:grid-cols-[minmax(0,1fr)_220px] lg:items-end">
+                <div className="min-w-0">
+                  <h1 className="max-w-full font-heading text-4xl text-white [overflow-wrap:anywhere] sm:text-5xl">
                     {sessionTitle}
                   </h1>
                   <p className="mt-4 max-w-3xl text-base leading-8 text-[var(--muted-foreground)]">
@@ -166,7 +166,7 @@ export function AnalysisDashboard({
                   </p>
                 </div>
 
-                <div className="rounded-[28px] border border-white/10 bg-[rgba(5,7,12,0.48)] px-6 py-5 text-right shadow-[0_16px_40px_rgba(7,10,18,0.25)]">
+                <div className="rounded-[28px] border border-white/10 bg-[rgba(5,7,12,0.48)] px-6 py-5 text-right shadow-[0_16px_40px_rgba(7,10,18,0.25)] lg:justify-self-end">
                   <p className="text-xs uppercase tracking-[0.18em] text-[var(--muted-foreground)]">ATS score</p>
                   <p className={`mt-2 font-heading text-6xl ${getScoreTone(overallScore)}`}>
                     {overallScore ?? "--"}

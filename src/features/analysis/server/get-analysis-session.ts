@@ -30,6 +30,42 @@ function getScoreExplanation(value: unknown) {
   return (value ?? null) as ScoreExplanation | null;
 }
 
+function toTitleCase(value: string) {
+  return value
+    .split(" ")
+    .filter(Boolean)
+    .map((segment) => segment.charAt(0).toUpperCase() + segment.slice(1).toLowerCase())
+    .join(" ");
+}
+
+function normalizeSessionLabel(value: string) {
+  return value
+    .replace(/\.[^.]+$/g, "")
+    .replace(/[-_]+/g, " ")
+    .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function buildDisplaySessionTitle(session: AnalysisSessionRecord) {
+  const roleTitle = session.jobDescription?.title?.trim();
+
+  if (roleTitle) {
+    return `${roleTitle} Resume Match`;
+  }
+
+  const fileName = session.uploadedFile?.originalName?.trim();
+
+  if (fileName) {
+    const normalized = normalizeSessionLabel(fileName);
+    const shortened = clipText(toTitleCase(normalized), 48);
+
+    return shortened.length > 0 ? `${shortened} Match` : "Resume Match";
+  }
+
+  return "Resume Match";
+}
+
 export async function getAnalysisSessionOrNull(id: string) {
   return db.analysisSession.findUnique({
     where: { id },
@@ -60,7 +96,7 @@ export function buildAnalysisDashboardData(session: AnalysisSessionRecord) {
   const niceToHaveKeywords = getJobDescriptionKeywords(session.jobDescription?.niceToHaveKeywords);
 
   return {
-    sessionTitle: session.title,
+    sessionTitle: buildDisplaySessionTitle(session),
     status: session.status,
     createdAt,
     overallScore: session.overallScore,
