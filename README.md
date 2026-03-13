@@ -32,6 +32,7 @@ Implemented so far:
 - deterministic ATS scoring with weighted breakdown persistence
 - keyword match results and rule-based improvement suggestions stored per analysis
 - polished analysis dashboard with reusable components and score visualization
+- saved analysis history page with trend framing and revisit links
 
 ## Getting started
 
