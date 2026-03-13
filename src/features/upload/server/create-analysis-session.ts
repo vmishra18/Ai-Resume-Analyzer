@@ -2,6 +2,8 @@ import { promises as fs } from "node:fs";
 import path from "node:path";
 import { randomUUID } from "node:crypto";
 
+import type { Prisma } from "@prisma/client";
+import { processJobDescription } from "@/features/job-description/server/process-job-description";
 import { parseResumeFile } from "@/features/resume-parser/server/parse-resume-file";
 import type { CreateAnalysisSessionResponse } from "@/features/upload/lib/types";
 import { buildAnalysisTitle, getFileExtension, normalizeWhitespace, sanitizeFileName } from "@/features/upload/lib/helpers";
@@ -31,6 +33,9 @@ export async function createAnalysisSessionFromUpload(
   const normalizedJobDescription = normalizeWhitespace(jobDescription ?? "");
   const savedFile = await persistUploadedResume(resume);
   const sessionTitle = buildAnalysisTitle(resume.name);
+  const processedJobDescription = normalizedJobDescription
+    ? processJobDescription(jobDescription ?? "")
+    : null;
 
   try {
     const session = await db.analysisSession.create({
@@ -50,11 +55,17 @@ export async function createAnalysisSessionFromUpload(
         jobDescription: normalizedJobDescription
           ? {
               create: {
-                rawText: jobDescription ?? "",
-                normalizedText: normalizedJobDescription,
-                extractedKeywords: [],
-                mustHaveKeywords: [],
-                niceToHaveKeywords: []
+                rawText: processedJobDescription?.rawText ?? "",
+                normalizedText: processedJobDescription?.normalizedText ?? normalizedJobDescription,
+                title: processedJobDescription?.title,
+                company: processedJobDescription?.company,
+                seniority: processedJobDescription?.seniority,
+                extractedKeywords:
+                  (processedJobDescription?.extractedKeywords ?? []) as unknown as Prisma.InputJsonValue,
+                mustHaveKeywords:
+                  (processedJobDescription?.mustHaveKeywords ?? []) as unknown as Prisma.InputJsonValue,
+                niceToHaveKeywords:
+                  (processedJobDescription?.niceToHaveKeywords ?? []) as unknown as Prisma.InputJsonValue
               }
             }
           : undefined

@@ -27,6 +27,8 @@ Implemented so far:
 - analysis detail route for persisted session intake review
 - PDF and DOCX parsing pipeline with normalized text extraction
 - section detection, extracted summary heuristics, and structure scoring
+- job description keyword extraction with must-have vs nice-to-have detection
+- role title, seniority, and categorized keyword insights persisted for later scoring
 
 ## Getting started
 

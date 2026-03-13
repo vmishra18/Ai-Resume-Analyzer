@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 
 import { Card } from "@/components/ui/card";
+import type { JobDescriptionKeyword } from "@/features/job-description/lib/types";
 import { formatBytes } from "@/features/upload/lib/helpers";
 import { clipText, countWords } from "@/features/resume-parser/server/normalization";
 import { db } from "@/lib/db";
@@ -9,6 +10,10 @@ interface AnalysisDetailPageProps {
   params: Promise<{
     id: string;
   }>;
+}
+
+function getJobDescriptionKeywords(value: unknown) {
+  return Array.isArray(value) ? (value as JobDescriptionKeyword[]) : [];
 }
 
 export default async function AnalysisDetailPage({ params }: AnalysisDetailPageProps) {
@@ -32,6 +37,9 @@ export default async function AnalysisDetailPage({ params }: AnalysisDetailPageP
     timeStyle: "short"
   }).format(session.createdAt);
   const parsedWordCount = session.parsedResume ? countWords(session.parsedResume.normalizedText) : 0;
+  const extractedJobKeywords = getJobDescriptionKeywords(session.jobDescription?.extractedKeywords);
+  const mustHaveKeywords = getJobDescriptionKeywords(session.jobDescription?.mustHaveKeywords);
+  const niceToHaveKeywords = getJobDescriptionKeywords(session.jobDescription?.niceToHaveKeywords);
   const sectionCards = session.parsedResume
     ? [
         { label: "Summary", value: session.parsedResume.hasSummary },
@@ -84,6 +92,27 @@ export default async function AnalysisDetailPage({ params }: AnalysisDetailPageP
                 : "No job description was provided for this analysis session."}
             </p>
           </div>
+
+          {session.jobDescription ? (
+            <div className="mt-6 grid gap-4 md:grid-cols-3">
+              <div className="rounded-2xl border border-white/8 bg-white/4 p-5">
+                <p className="text-xs uppercase tracking-[0.18em] text-[var(--muted-foreground)]">Role title</p>
+                <p className="mt-2 text-lg font-semibold text-white">
+                  {session.jobDescription.title ?? "Not detected"}
+                </p>
+              </div>
+              <div className="rounded-2xl border border-white/8 bg-white/4 p-5">
+                <p className="text-xs uppercase tracking-[0.18em] text-[var(--muted-foreground)]">Seniority</p>
+                <p className="mt-2 text-lg font-semibold text-white">
+                  {session.jobDescription.seniority ?? "Not detected"}
+                </p>
+              </div>
+              <div className="rounded-2xl border border-white/8 bg-white/4 p-5">
+                <p className="text-xs uppercase tracking-[0.18em] text-[var(--muted-foreground)]">Extracted keywords</p>
+                <p className="mt-2 text-lg font-semibold text-white">{extractedJobKeywords.length}</p>
+              </div>
+            </div>
+          ) : null}
         </Card>
 
         <div className="space-y-6">
@@ -156,10 +185,56 @@ export default async function AnalysisDetailPage({ params }: AnalysisDetailPageP
           </Card>
 
           <Card>
+            <h2 className="text-2xl font-semibold text-white">Job description insights</h2>
+            {session.jobDescription ? (
+              <div className="mt-5 space-y-5">
+                <div>
+                  <p className="text-xs uppercase tracking-[0.18em] text-[var(--muted-foreground)]">Must-have keywords</p>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {mustHaveKeywords.length > 0 ? (
+                      mustHaveKeywords.map((keyword) => (
+                        <span
+                          key={`${keyword.category}-${keyword.normalizedKeyword}`}
+                          className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-sm text-emerald-100"
+                        >
+                          {keyword.keyword}
+                        </span>
+                      ))
+                    ) : (
+                      <p className="text-sm text-[var(--muted-foreground)]">No must-have keywords detected yet.</p>
+                    )}
+                  </div>
+                </div>
+
+                <div>
+                  <p className="text-xs uppercase tracking-[0.18em] text-[var(--muted-foreground)]">Nice-to-have keywords</p>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {niceToHaveKeywords.length > 0 ? (
+                      niceToHaveKeywords.slice(0, 14).map((keyword) => (
+                        <span
+                          key={`${keyword.category}-${keyword.normalizedKeyword}`}
+                          className="rounded-full border border-white/10 bg-white/6 px-3 py-1 text-sm text-white/84"
+                        >
+                          {keyword.keyword}
+                        </span>
+                      ))
+                    ) : (
+                      <p className="text-sm text-[var(--muted-foreground)]">No nice-to-have keywords detected yet.</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <p className="mt-4 text-sm leading-7 text-[var(--muted-foreground)]">
+                Add a job description during upload to generate keyword extraction, must-have detection, and role hints.
+              </p>
+            )}
+          </Card>
+
+          <Card>
             <h2 className="text-2xl font-semibold text-white">What comes next</h2>
             <div className="mt-5 space-y-3">
               {[
-                "Extract job description keywords and must-have skills.",
                 "Calculate ATS score breakdown and render the dashboard."
               ].map((item) => (
                 <div key={item} className="rounded-2xl border border-white/8 bg-white/4 px-4 py-3">
