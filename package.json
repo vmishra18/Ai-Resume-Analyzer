@@ -8,6 +8,7 @@
     "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint .",
+    "test": "node -r ./tests/register-ts.cjs --test tests/*.test.cjs",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "db:push": "prisma db push"

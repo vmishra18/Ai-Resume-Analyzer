@@ -7,11 +7,13 @@ interface CatalogEntry {
 }
 
 export const keywordCatalog: CatalogEntry[] = [
-  { phrase: "react", category: "technical_skill" },
+  { phrase: "react", category: "technical_skill", aliases: ["reactjs"] },
   { phrase: "next.js", category: "technical_skill", aliases: ["nextjs"] },
-  { phrase: "node.js", category: "technical_skill", aliases: ["node", "nodejs"] },
+  { phrase: "node.js", category: "technical_skill", aliases: ["nodejs", "node js"] },
   { phrase: "typescript", category: "technical_skill" },
   { phrase: "javascript", category: "technical_skill" },
+  { phrase: "html5", category: "technical_skill", aliases: ["html 5"] },
+  { phrase: "canvas", category: "technical_skill", aliases: ["canvas api"] },
   { phrase: "python", category: "technical_skill" },
   { phrase: "java", category: "technical_skill" },
   { phrase: "go", category: "technical_skill", aliases: ["golang"] },
@@ -24,7 +26,19 @@ export const keywordCatalog: CatalogEntry[] = [
   { phrase: "rest api", category: "technical_skill", aliases: ["rest apis", "apis", "api design"] },
   { phrase: "microservices", category: "technical_skill" },
   { phrase: "system design", category: "technical_skill" },
+  { phrase: "oop", category: "technical_skill", aliases: ["object oriented programming"] },
+  { phrase: "software design patterns", category: "technical_skill", aliases: ["design patterns"] },
   { phrase: "docker", category: "tool" },
+  { phrase: "webpack", category: "tool" },
+  { phrase: "npm", category: "tool" },
+  { phrase: "eslint", category: "tool" },
+  { phrase: "karma", category: "tool" },
+  { phrase: "less", category: "tool", aliases: ["less css"] },
+  { phrase: "git", category: "tool", aliases: ["git workflows", "git based collaboration"] },
+  { phrase: "ci", category: "tool", aliases: ["ci pipelines", "ci pipeline", "ci environments", "continuous integration"] },
+  { phrase: "linux", category: "tool", aliases: ["linux environments"] },
+  { phrase: "macos", category: "tool", aliases: ["mac os", "macos environments"] },
+  { phrase: "agile", category: "tool", aliases: ["agile methodologies", "agile development"] },
   { phrase: "kubernetes", category: "tool" },
   { phrase: "aws", category: "tool", aliases: ["amazon web services"] },
   { phrase: "azure", category: "tool" },
@@ -43,6 +57,7 @@ export const keywordCatalog: CatalogEntry[] = [
   { phrase: "ownership", category: "soft_skill" },
   { phrase: "mentoring", category: "soft_skill" },
   { phrase: "stakeholder management", category: "soft_skill" },
+  { phrase: "stakeholders", category: "soft_skill", aliases: ["business stakeholders"] },
   { phrase: "problem solving", category: "soft_skill" },
   { phrase: "teamwork", category: "soft_skill" },
   { phrase: "bachelor's degree", category: "qualification", aliases: ["bachelors degree", "bs degree"] },
@@ -58,10 +73,13 @@ export const keywordCatalog: CatalogEntry[] = [
   { phrase: "artificial intelligence", category: "domain", aliases: ["ai"] },
   { phrase: "fintech", category: "domain" },
   { phrase: "healthcare", category: "domain" },
-  { phrase: "ecommerce", category: "domain" }
+  { phrase: "ecommerce", category: "domain" },
+  { phrase: "retail", category: "domain" },
+  { phrase: "manufacturing", category: "domain" }
 ];
 
 export const roleTitlePatterns = [
+  "software developer",
   "frontend engineer",
   "backend engineer",
   "full stack engineer",

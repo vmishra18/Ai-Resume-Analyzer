@@ -77,3 +77,39 @@ export function normalizeKeyword(value: string) {
     .replace(/[ ]{2,}/g, " ")
     .trim();
 }
+
+export function escapeRegExp(value: string) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function buildTermPattern(term: string) {
+  const normalizedTerm = normalizeKeyword(term);
+
+  if (!normalizedTerm) {
+    return null;
+  }
+
+  return new RegExp(`(^|[^a-z0-9+#./-])${escapeRegExp(normalizedTerm)}(?=$|[^a-z0-9+#./-])`, "g");
+}
+
+export function hasWholeTerm(value: string, term: string) {
+  const pattern = buildTermPattern(term);
+
+  if (!pattern) {
+    return false;
+  }
+
+  return pattern.test(normalizeAnalysisText(value));
+}
+
+export function countWholeTermMatches(value: string, term: string) {
+  const pattern = buildTermPattern(term);
+
+  if (!pattern) {
+    return 0;
+  }
+
+  const matches = normalizeAnalysisText(value).match(pattern);
+
+  return matches?.length ?? 0;
+}

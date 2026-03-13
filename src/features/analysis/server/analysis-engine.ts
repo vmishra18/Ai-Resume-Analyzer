@@ -7,6 +7,7 @@ import type {
   ScoreExplanation
 } from "@/features/analysis/lib/types";
 import type { ProcessedJobDescription } from "@/features/job-description/lib/types";
+import { countWholeTermMatches, hasWholeTerm } from "@/features/nlp/server/text-normalization";
 import type { ParsedResumeResult } from "@/features/resume-parser/lib/types";
 
 function percentage(part: number, total: number) {
@@ -17,19 +18,32 @@ function percentage(part: number, total: number) {
   return Math.round((part / total) * 100);
 }
 
-function escapeRegExp(value: string) {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+function uniqueLabels(keywords: KeywordArtifact[]) {
+  return Array.from(new Set(keywords.map((keyword) => keyword.keyword))).sort((left, right) =>
+    left.localeCompare(right)
+  );
 }
 
-function countOccurrences(value: string, phrase: string) {
-  if (!phrase) {
+function getWeightedCoverage(keywords: KeywordArtifact[]) {
+  if (keywords.length === 0) {
     return 0;
   }
 
-  const regex = new RegExp(`(^|\\b)${escapeRegExp(phrase)}(\\b|$)`, "g");
-  const matches = value.match(regex);
+  return Math.round(
+    (keywords.reduce((total, keyword) => {
+      if (keyword.matchType === "matched") {
+        return total + 1;
+      }
 
-  return matches?.length ?? 0;
+      if (keyword.matchType === "partial") {
+        return total + 0.5;
+      }
+
+      return total;
+    }, 0) /
+      keywords.length) *
+      100
+  );
 }
 
 function buildKeywordArtifacts(
@@ -47,11 +61,28 @@ function buildKeywordArtifacts(
   );
 
   return jobDescription.extractedKeywords.map<KeywordArtifact>((keyword) => {
-    const exactMatches = countOccurrences(resume.normalizedText, keyword.normalizedKeyword);
-    const parts = keyword.normalizedKeyword.split(/\s+/).filter(Boolean);
-    const matchedParts = parts.filter((part) => resumeTokenSet.has(part)).length;
-    const partialThreshold = parts.length > 1 ? Math.ceil(parts.length / 2) : 1;
-    const isPartial = exactMatches === 0 && matchedParts >= partialThreshold && parts.length > 1;
+    const exactMatches = keyword.matchTerms.reduce(
+      (highestCount, term) => Math.max(highestCount, countWholeTermMatches(resume.normalizedText, term)),
+      0
+    );
+    const partialCandidates = keyword.matchTerms
+      .map((term) => term.split(/\s+/).filter(Boolean))
+      .filter((parts) => parts.length > 1);
+    const matchedParts = partialCandidates.reduce((highestMatch, parts) => {
+      const partMatches = parts.filter((part) => resumeTokenSet.has(part)).length;
+
+      return Math.max(highestMatch, partMatches);
+    }, 0);
+    const bestPartialLength = partialCandidates.reduce(
+      (highestLength, parts) => Math.max(highestLength, parts.length),
+      0
+    );
+    const partialThreshold = bestPartialLength > 1 ? Math.ceil(bestPartialLength / 2) : 0;
+    const isPartial =
+      exactMatches === 0 &&
+      bestPartialLength > 1 &&
+      matchedParts >= partialThreshold &&
+      (keyword.category === "technical_skill" || keyword.category === "tool" || keyword.category === "domain");
     const matchType = exactMatches > 0 ? "matched" : isPartial ? "partial" : "missing";
 
     return {
@@ -77,19 +108,17 @@ function calculateRoleRelevance(
   if (jobDescription.title) {
     const normalizedTitle = jobDescription.title.toLowerCase();
     const titleTokens = normalizedTitle.split(/\s+/).filter(Boolean);
-    const titleTokenMatches = titleTokens.filter((token) =>
-      resume.normalizedText.includes(token)
-    ).length;
+    const titleTokenMatches = titleTokens.filter((token) => hasWholeTerm(resume.normalizedText, token)).length;
 
     signals.push(
-      resume.normalizedText.includes(normalizedTitle)
+      hasWholeTerm(resume.normalizedText, normalizedTitle)
         ? 100
         : percentage(titleTokenMatches, titleTokens.length)
     );
   }
 
   if (jobDescription.seniority) {
-    signals.push(resume.normalizedText.includes(jobDescription.seniority.toLowerCase()) ? 100 : 25);
+    signals.push(hasWholeTerm(resume.normalizedText, jobDescription.seniority.toLowerCase()) ? 100 : 25);
   }
 
   const domainKeywords = keywordArtifacts.filter((keyword) => keyword.category === "domain");
@@ -127,30 +156,13 @@ function calculateAlignmentScore(
     keyword.category === "domain"
   );
 
-  const relevantCoverage =
-    relevantKeywords.length > 0
-      ? Math.round(
-          (relevantKeywords.reduce((total, keyword) => {
-            if (keyword.matchType === "matched") {
-              return total + 1;
-            }
-
-            if (keyword.matchType === "partial") {
-              return total + 0.5;
-            }
-
-            return total;
-          }, 0) /
-            relevantKeywords.length) *
-            100
-        )
-      : 0;
+  const relevantCoverage = getWeightedCoverage(relevantKeywords);
 
   const summaryText = `${resume.summary ?? ""} ${resume.normalizedText.slice(0, 350)}`.toLowerCase();
   const summaryKeywordHits = jobDescription.extractedKeywords.filter((keyword) =>
-    summaryText.includes(keyword.normalizedKeyword)
+    keyword.matchTerms.some((term) => hasWholeTerm(summaryText, term))
   ).length;
-  const summaryAlignment = jobDescription.title && summaryText.includes(jobDescription.title.toLowerCase())
+  const summaryAlignment = jobDescription.title && hasWholeTerm(summaryText, jobDescription.title.toLowerCase())
     ? 100
     : summaryKeywordHits >= 3
       ? 90
@@ -171,7 +183,7 @@ function calculateBonusScore(resume: ParsedResumeResult) {
   const bonusSignals: string[] = [];
 
   if (resume.sections.projects) {
-    score += 2;
+    score += 1;
     bonusSignals.push("Projects section detected");
   }
 
@@ -276,14 +288,8 @@ export function analyzeResumeAgainstJob(
   const missingKeywords = keywordArtifacts.filter((keyword) => keyword.matchType === "missing");
   const mustHaveKeywords = keywordArtifacts.filter((keyword) => keyword.isMustHave);
 
-  const weightedMatchedKeywords = matchedKeywords.length + partialKeywords.length * 0.5;
-  const weightedMatchedMustHaves =
-    mustHaveKeywords.filter((keyword) => keyword.matchType === "matched").length +
-    mustHaveKeywords.filter((keyword) => keyword.matchType === "partial").length * 0.5;
-  const keywordCoverage = Math.round((weightedMatchedKeywords / Math.max(keywordArtifacts.length, 1)) * 100);
-  const mustHaveCoverage = Math.round(
-    (weightedMatchedMustHaves / Math.max(mustHaveKeywords.length, 1)) * 100
-  );
+  const keywordCoverage = getWeightedCoverage(keywordArtifacts);
+  const mustHaveCoverage = getWeightedCoverage(mustHaveKeywords);
 
   const sectionCompleteness = {
     summary: resume.sections.summary,
@@ -302,6 +308,7 @@ export function analyzeResumeAgainstJob(
     mustHaveCoverage
   );
   const structureQualityRaw = resume.structureScore;
+  const structureQualityAdjusted = Math.round(structureQualityRaw * 0.6);
   const bonus = calculateBonusScore(resume);
 
   const score: ScoreBreakdown = {
@@ -309,7 +316,7 @@ export function analyzeResumeAgainstJob(
     mustHaveSkills: Math.round((mustHaveCoverage * scoringWeights[1].weight) / 100),
     sectionCompleteness: Math.round((sectionCoverage * scoringWeights[2].weight) / 100),
     roleRelevance: Math.round((roleRelevanceRaw * scoringWeights[3].weight) / 100),
-    structureQuality: Math.round((structureQualityRaw * scoringWeights[4].weight) / 100),
+    structureQuality: Math.round((structureQualityAdjusted * scoringWeights[4].weight) / 100),
     alignment: Math.round((alignmentRaw * scoringWeights[5].weight) / 100),
     bonus: bonus.score,
     total: 0
@@ -339,7 +346,11 @@ export function analyzeResumeAgainstJob(
     roleRelevanceRaw,
     structureQualityRaw,
     alignmentRaw,
-    bonusSignals: bonus.bonusSignals
+    bonusSignals: bonus.bonusSignals,
+    canonicalMatchedKeywords: uniqueLabels(matchedKeywords),
+    canonicalPartialKeywords: uniqueLabels(partialKeywords),
+    canonicalMissingKeywords: uniqueLabels(missingKeywords),
+    filteredOutPhrases: jobDescription.filteredOutPhrases
   };
 
   return {

@@ -17,7 +17,7 @@ export interface KeywordArtifact {
   matchType: KeywordMatchType;
   occurrences: number;
   isMustHave?: boolean;
-  source?: "catalog" | "phrase";
+  source?: "catalog" | "requirement";
 }
 
 export interface SectionCompleteness {
@@ -63,6 +63,10 @@ export interface ScoreExplanation {
   structureQualityRaw: number;
   alignmentRaw: number;
   bonusSignals: string[];
+  canonicalMatchedKeywords: string[];
+  canonicalPartialKeywords: string[];
+  canonicalMissingKeywords: string[];
+  filteredOutPhrases: string[];
 }
 
 export interface AnalysisSuggestion {

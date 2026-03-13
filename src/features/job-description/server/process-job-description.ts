@@ -1,15 +1,12 @@
-import nlp from "compromise";
-
 import type { KeywordCategory } from "@/features/analysis/lib/types";
 import { keywordCatalog, roleTitlePatterns, seniorityPatterns } from "@/features/job-description/lib/catalog";
 import type { JobDescriptionKeyword, ProcessedJobDescription } from "@/features/job-description/lib/types";
 import {
+  hasWholeTerm,
   normalizeAnalysisText,
   normalizeKeyword,
-  removeStopWords,
   splitIntoLines,
-  splitIntoSentences,
-  tokenizeForAnalysis
+  splitIntoSentences
 } from "@/features/nlp/server/text-normalization";
 
 const mustHaveHints = [
@@ -25,15 +22,59 @@ const mustHaveHints = [
   "proficient in"
 ] as const;
 
-const niceToHaveHints = ["nice to have", "preferred", "bonus", "plus", "ideally"] as const;
+const niceToHaveHints = ["nice to have", "preferred", "bonus", "plus", "ideally", "exposure to"] as const;
 
-const categoryKeywords: Record<KeywordCategory, string[]> = {
-  technical_skill: ["framework", "language", "api", "database", "architecture", "testing"],
-  soft_skill: ["communication", "collaboration", "leadership", "mentoring", "stakeholder", "ownership"],
-  tool: ["cloud", "docker", "figma", "jira", "github", "platform", "tool"],
-  qualification: ["degree", "certification", "experience", "qualification"],
-  domain: ["saas", "fintech", "healthcare", "product", "domain", "industry", "analytics"]
+const requirementLineHints = [
+  "technology you will be using",
+  "desired skills",
+  "skills and knowledge",
+  "about you",
+  "experience with",
+  "proficient in",
+  "familiar with",
+  "exposure to",
+  "background in",
+  "solid understanding of",
+  "including tools like",
+  "key responsibilities"
+] as const;
+
+const displayLabelMap: Record<string, string> = {
+  react: "React",
+  "next.js": "Next.js",
+  "node.js": "Node.js",
+  typescript: "TypeScript",
+  javascript: "JavaScript",
+  html5: "HTML5",
+  canvas: "Canvas",
+  aws: "AWS",
+  ci: "CI",
+  npm: "NPM",
+  eslint: "ESLint",
+  oop: "OOP",
+  graphql: "GraphQL",
+  macos: "macOS",
+  sql: "SQL"
 };
+
+interface CatalogMatch {
+  keyword: JobDescriptionKeyword;
+  matchedTerms: string[];
+}
+
+function toTitleCase(value: string) {
+  return value
+    .split(" ")
+    .filter(Boolean)
+    .map((segment) => segment.charAt(0).toUpperCase() + segment.slice(1))
+    .join(" ");
+}
+
+function formatKeywordLabel(value: string) {
+  const normalized = normalizeKeyword(value);
+
+  return displayLabelMap[normalized] ?? toTitleCase(value);
+}
 
 function uniqueKeywords(keywords: JobDescriptionKeyword[]) {
   const seen = new Set<string>();
@@ -50,24 +91,59 @@ function uniqueKeywords(keywords: JobDescriptionKeyword[]) {
   });
 }
 
-function detectRoleTitle(lines: string[]) {
-  const firstLine = lines[0]?.toLowerCase() ?? "";
+function buildKeyword(
+  phrase: string,
+  category: KeywordCategory,
+  aliases: string[] | undefined,
+  source: JobDescriptionKeyword["source"]
+): JobDescriptionKeyword {
+  const normalizedKeyword = normalizeKeyword(phrase);
+  const matchTerms = Array.from(
+    new Set(
+      [phrase, ...(aliases ?? [])]
+        .map((term) => normalizeKeyword(term))
+        .filter(Boolean)
+    )
+  );
 
-  const directMatch = roleTitlePatterns.find((title) => firstLine.includes(title));
+  return {
+    keyword: formatKeywordLabel(phrase),
+    normalizedKeyword,
+    category,
+    matchTerms,
+    source
+  };
+}
+
+function findCatalogMatches(value: string, source: JobDescriptionKeyword["source"]) {
+  return keywordCatalog.flatMap<CatalogMatch>((entry) => {
+    const keyword = buildKeyword(entry.phrase, entry.category, entry.aliases, source);
+    const matchedTerms = keyword.matchTerms.filter((term) => hasWholeTerm(value, term));
+
+    return matchedTerms.length > 0 ? [{ keyword, matchedTerms }] : [];
+  });
+}
+
+function detectRoleTitle(lines: string[]) {
+  const normalizedLines = lines.map((line) => normalizeKeyword(line));
+  const firstLine = normalizedLines[0] ?? "";
+  const directMatch = roleTitlePatterns.find((title) => hasWholeTerm(firstLine, title));
 
   if (directMatch) {
-    return directMatch.replace(/\b\w/g, (value) => value.toUpperCase());
+    return toTitleCase(directMatch);
   }
 
-  const matchingLine = lines.find((line) =>
-    roleTitlePatterns.some((title) => line.toLowerCase().includes(title))
+  const matchingLine = normalizedLines.find((line) =>
+    roleTitlePatterns.some((title) => hasWholeTerm(line, title))
   );
 
   if (!matchingLine) {
     return null;
   }
 
-  return matchingLine.length <= 80 ? matchingLine : null;
+  const matchedTitle = roleTitlePatterns.find((title) => hasWholeTerm(matchingLine, title));
+
+  return matchedTitle ? toTitleCase(matchedTitle) : null;
 }
 
 function detectCompany(lines: string[]) {
@@ -84,129 +160,126 @@ function detectCompany(lines: string[]) {
   return null;
 }
 
-function detectSeniority(normalizedText: string) {
-  const match = seniorityPatterns.find((value) => normalizedText.includes(value));
+function detectSeniority(lines: string[]) {
+  const candidateLines = lines
+    .slice(0, 4)
+    .map((line) => normalizeKeyword(line))
+    .filter((line) => line.length > 0);
+  const roleLines = candidateLines.filter((line) =>
+    roleTitlePatterns.some((title) => hasWholeTerm(line, title))
+  );
+  const seniorityContext = roleLines.length > 0 ? roleLines : candidateLines;
+  const match = seniorityPatterns.find((value) =>
+    seniorityContext.some((line) => hasWholeTerm(line, value))
+  );
 
   return match ? match.replace(/\b\w/g, (letter) => letter.toUpperCase()) : null;
 }
 
-function inferCategory(phrase: string): KeywordCategory | null {
-  const normalizedPhrase = normalizeKeyword(phrase);
+function looksLikeRequirementLine(line: string) {
+  const normalizedLine = normalizeKeyword(line);
 
-  if (!normalizedPhrase || normalizedPhrase.length < 3) {
-    return null;
-  }
-
-  for (const [category, hints] of Object.entries(categoryKeywords) as [KeywordCategory, string[]][]) {
-    if (hints.some((hint) => normalizedPhrase.includes(hint))) {
-      return category;
-    }
-  }
-
-  if (/\b(degree|certification|experience)\b/.test(normalizedPhrase)) {
-    return "qualification";
-  }
-
-  if (/\b(react|node|typescript|javascript|python|sql|api|database)\b/.test(normalizedPhrase)) {
-    return "technical_skill";
-  }
-
-  return null;
-}
-
-function extractCatalogKeywords(normalizedText: string) {
-  return keywordCatalog.flatMap((entry) => {
-    const terms = [entry.phrase, ...(entry.aliases ?? [])];
-    const matchedTerm = terms.find((term) => normalizedText.includes(normalizeKeyword(term)));
-
-    return matchedTerm
-      ? [
-          {
-            keyword: entry.phrase,
-            normalizedKeyword: normalizeKeyword(entry.phrase),
-            category: entry.category,
-            source: "catalog" as const
-          }
-        ]
-      : [];
-  });
-}
-
-function extractPhraseKeywords(rawText: string) {
-  const doc = nlp(rawText);
-  const phraseMatches = doc.match("(#Adjective|#Noun)+").out("array");
-  const lineFragments = splitIntoLines(rawText).flatMap((line) =>
-    line.split(/[:;,/]| - /).map((fragment) => fragment.trim())
+  return (
+    requirementLineHints.some((hint) => normalizedLine.includes(hint)) ||
+    /^[•*-]/.test(line.trim()) ||
+    normalizedLine.includes(",") ||
+    normalizedLine.includes(" and ")
   );
-  const tokenPhrases = removeStopWords(tokenizeForAnalysis(rawText))
-    .filter((token) => token.length > 2)
-    .slice(0, 40);
-
-  const combinedPhrases = [...phraseMatches, ...lineFragments, ...tokenPhrases];
-
-  return combinedPhrases.flatMap((phrase) => {
-    const normalizedPhrase = normalizeKeyword(phrase);
-
-    if (!normalizedPhrase || normalizedPhrase.length < 3 || normalizedPhrase.split(" ").length > 4) {
-      return [];
-    }
-
-    if (mustHaveHints.includes(normalizedPhrase as (typeof mustHaveHints)[number])) {
-      return [];
-    }
-
-    const category = inferCategory(normalizedPhrase);
-
-    if (!category) {
-      return [];
-    }
-
-    return [
-      {
-        keyword: phrase.replace(/[.,]+$/g, ""),
-        normalizedKeyword: normalizedPhrase,
-        category,
-        source: "phrase" as const
-      }
-    ];
-  });
 }
 
-function classifyKeywordPriority(
-  keyword: JobDescriptionKeyword,
-  normalizedSentences: string[]
-) {
+function isNoiseFragment(value: string) {
+  const normalized = normalizeKeyword(value);
+
+  return (
+    normalized.length < 3 ||
+    mustHaveHints.some((hint) => normalized === hint) ||
+    niceToHaveHints.some((hint) => normalized === hint) ||
+    /\b(years?|experience|applications|understanding|knowledge|ability|tools|including|desired)\b/.test(normalized)
+  );
+}
+
+function extractRequirementKeywords(lines: string[]) {
+  const extractedKeywords: JobDescriptionKeyword[] = [];
+  const filteredOutPhrases = new Set<string>();
+
+  for (const line of lines) {
+    if (!looksLikeRequirementLine(line)) {
+      continue;
+    }
+
+    const matches = findCatalogMatches(line, "requirement");
+
+    extractedKeywords.push(...matches.map((match) => match.keyword));
+
+    const matchedTerms = new Set(matches.flatMap((match) => match.matchedTerms));
+    const cleanedLine = line
+      .replace(/^[•*-]\s*/, "")
+      .replace(/^(the technology you will be using includes|desired skills and knowledge|desired skills|about you|key responsibilities)\s*:?\s*/i, "")
+      .replace(/^(experience with|proficient in|familiar with|exposure to|background in|solid understanding of|including tools like)\s+/i, "");
+
+    const fragments = cleanedLine
+      .split(/,|;|\/|\band\b/i)
+      .map((fragment) => fragment.trim())
+      .filter(Boolean);
+
+    for (const fragment of fragments) {
+      const normalizedFragment = normalizeKeyword(fragment);
+
+      if (
+        !normalizedFragment ||
+        matchedTerms.has(normalizedFragment) ||
+        matches.some((match) => hasWholeTerm(fragment, match.keyword.normalizedKeyword)) ||
+        isNoiseFragment(fragment)
+      ) {
+        continue;
+      }
+
+      filteredOutPhrases.add(fragment);
+    }
+  }
+
+  return {
+    extractedKeywords,
+    filteredOutPhrases: Array.from(filteredOutPhrases).sort((left, right) => left.localeCompare(right))
+  };
+}
+
+function classifyKeywordPriority(keyword: JobDescriptionKeyword, normalizedSentences: string[]) {
   const matchingSentence = normalizedSentences.find((sentence) =>
-    sentence.includes(keyword.normalizedKeyword)
+    keyword.matchTerms.some((term) => hasWholeTerm(sentence, term))
   );
 
   if (!matchingSentence) {
-    return "nice";
+    return keyword.category === "technical_skill" || keyword.category === "tool" || keyword.category === "qualification"
+      ? "must"
+      : "nice";
   }
 
   if (niceToHaveHints.some((hint) => matchingSentence.includes(hint))) {
     return "nice";
   }
 
-  if (mustHaveHints.some((hint) => matchingSentence.includes(hint))) {
+  if (
+    mustHaveHints.some((hint) => matchingSentence.includes(hint)) ||
+    /\b\d+\+?\s+years?\b/.test(matchingSentence)
+  ) {
     return "must";
   }
 
-  if (/\b\d+\+?\s+years?\b/.test(matchingSentence)) {
-    return "must";
-  }
-
-  return keyword.category === "soft_skill" ? "nice" : "must";
+  return keyword.category === "technical_skill" || keyword.category === "tool" || keyword.category === "qualification"
+    ? "must"
+    : "nice";
 }
 
 export function processJobDescription(rawText: string): ProcessedJobDescription {
   const normalizedText = normalizeAnalysisText(rawText);
   const lines = splitIntoLines(rawText);
   const normalizedSentences = splitIntoSentences(normalizedText);
-  const extractedKeywords = uniqueKeywords([
-    ...extractCatalogKeywords(normalizedText),
-    ...extractPhraseKeywords(rawText)
-  ]).sort((left, right) => left.keyword.localeCompare(right.keyword));
+  const catalogKeywords = findCatalogMatches(normalizedText, "catalog").map((match) => match.keyword);
+  const requirementExtraction = extractRequirementKeywords(lines);
+  const extractedKeywords = uniqueKeywords([...catalogKeywords, ...requirementExtraction.extractedKeywords]).sort(
+    (left, right) => left.keyword.localeCompare(right.keyword)
+  );
 
   const mustHaveKeywords = extractedKeywords.filter(
     (keyword) => classifyKeywordPriority(keyword, normalizedSentences) === "must"
@@ -220,9 +293,10 @@ export function processJobDescription(rawText: string): ProcessedJobDescription 
     normalizedText,
     title: detectRoleTitle(lines),
     company: detectCompany(lines),
-    seniority: detectSeniority(normalizedText),
+    seniority: detectSeniority(lines),
     extractedKeywords,
     mustHaveKeywords,
-    niceToHaveKeywords
+    niceToHaveKeywords,
+    filteredOutPhrases: requirementExtraction.filteredOutPhrases
   };
 }

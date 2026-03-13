@@ -1,0 +1,31 @@
+Software Developer - Hybrid
+
+About the role
+
+As a Software Developer, you will work with an agile development team on internal systems used across planning, manufacturing, transport, installations, and customer service.
+
+The technology you will be using includes:
+- JavaScript / TypeScript
+- ReactJS
+- HTML5
+- Canvas
+- NodeJS
+- Less
+
+Key responsibilities:
+- Build and maintain the company's custom application
+- Write clean code that is clear and understandable by others
+- Contribute to all phases of the development lifecycle
+- Work with senior developers, business stakeholders, and the wider development team
+
+About you
+
+Desired skills and knowledge:
+- 2+ years' experience developing and maintaining JavaScript applications
+- Proficient in TypeScript, React, NodeJS, HTML5, Canvas, and Less
+- Solid understanding of JavaScript concepts, OOP, and software design patterns
+- Strong maths skills and ability to design complex algorithms
+- Experience with unit and automated testing, including tools like Docker, Webpack, NPM, ESLint, and Karma
+- Familiar with Git workflows, Agile methodologies, and CI environments
+- Exposure to AWS and Linux/macOS environments
+- Background in retail or manufacturing environments is a plus

@@ -1,0 +1,40 @@
+SOFTWARE DEVELOPER
+Leeds, UK
+
+PROFESSIONAL SUMMARY
+Software Developer with experience building browser-based applications using JavaScript and TypeScript. Skilled in developing interactive React interfaces and supporting Node.js services for data-driven web applications. Familiar with HTML5 capabilities including Canvas for browser rendering and visualisation. Experience working in Agile teams contributing to design, development and maintenance of production systems.
+
+TECHNICAL SKILLS
+- Languages: JavaScript, TypeScript
+- Frontend: ReactJS, HTML5, Canvas API, responsive UI development, component-based architecture
+- Backend: NodeJS, REST APIs, asynchronous data handling
+- Styling & Tooling: Less, Webpack, NPM, ESLint
+- Testing: Unit testing, automated testing
+- Practices: Object-oriented programming, modular JavaScript architecture, software design patterns
+- Tools & Environment: Git, Docker, CI pipelines, Linux/macOS, Agile development
+
+WORK EXPERIENCE
+Software Developer | Product Company
+Jul 2025 - Present
+- Developed React and TypeScript interfaces displaying operational metrics and activity through browser dashboards.
+- Implemented interactive UI components using HTML5 features including Canvas to visualise operational datasets.
+- Built NodeJS services collecting and structuring operational data, exposing REST endpoints consumed by applications.
+- Refactored legacy JavaScript modules into TypeScript components, improving maintainability and reducing errors.
+- Contributed to Webpack build configuration, automated testing workflows and CI pipelines while working within Agile sprint cycles and Git-based code review processes.
+
+Software Developer | Contract Role
+Mar 2025 - Jun 2025
+- Built ReactJS applications enabling users to explore complex operational datasets retrieved from backend APIs.
+- Developed TypeScript components transforming and rendering large data responses within browser interfaces.
+- Implemented NodeJS endpoints exposing structured REST APIs consumed by frontend reporting applications.
+- Created HTML5 Canvas UI components visualising trends and activity patterns within operational data dashboards.
+
+PROJECTS
+Interactive Operational Planning Interface
+- Developed ReactJS and TypeScript interface for interacting with structured datasets through dynamic UI components.
+- Implemented HTML5 Canvas rendering to visualise layout structures and spatial relationships within browser interfaces.
+- Built NodeJS services responsible for retrieving and preparing datasets consumed by frontend components.
+
+EDUCATION
+MSc in Advanced Computer Science
+BTech Computer Science and Engineering

@@ -4,7 +4,8 @@ export interface JobDescriptionKeyword {
   keyword: string;
   normalizedKeyword: string;
   category: KeywordCategory;
-  source: "catalog" | "phrase";
+  matchTerms: string[];
+  source: "catalog" | "requirement";
 }
 
 export interface ProcessedJobDescription {
@@ -16,4 +17,5 @@ export interface ProcessedJobDescription {
   extractedKeywords: JobDescriptionKeyword[];
   mustHaveKeywords: JobDescriptionKeyword[];
   niceToHaveKeywords: JobDescriptionKeyword[];
+  filteredOutPhrases: string[];
 }
