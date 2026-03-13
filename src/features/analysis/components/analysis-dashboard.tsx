@@ -96,6 +96,34 @@ function getScoreTone(score: number | null) {
   return "text-rose-200";
 }
 
+function getStatusMessage(status: string, hasParsedResume: boolean) {
+  if (status === "FAILED") {
+    return {
+      title: "Resume parsing needs another pass",
+      description:
+        "We could not extract reliable text from this file. This usually happens with scanned PDFs, password-protected files, or image-heavy exports."
+    };
+  }
+
+  if (status === "PROCESSING") {
+    return {
+      title: "Analysis is still processing",
+      description:
+        "The intake service is still extracting text and computing resume-to-job matches. Refresh in a moment if this state persists."
+    };
+  }
+
+  if (status === "PENDING" && hasParsedResume) {
+    return {
+      title: "Resume parsed, waiting for job-match scoring",
+      description:
+        "The resume text was extracted successfully, but a job description was not available for full ATS scoring."
+    };
+  }
+
+  return null;
+}
+
 export function AnalysisDashboard({
   sessionTitle,
   status,
@@ -116,11 +144,13 @@ export function AnalysisDashboard({
   actions,
   headerBadge = "Analysis dashboard"
 }: AnalysisDashboardProps) {
+  const statusMessage = getStatusMessage(status, Boolean(parsedResume));
+
   return (
     <section className="px-6 py-16 lg:px-8 lg:py-20">
       <div className="mx-auto max-w-7xl">
         <div className="grid gap-6 xl:grid-cols-[1.25fr_0.75fr]">
-          <Card className="relative overflow-hidden">
+          <Card className="relative min-w-0 overflow-hidden">
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(52,211,153,0.18),transparent_34%),radial-gradient(circle_at_bottom_left,rgba(245,106,72,0.16),transparent_32%)]" />
             <div className="relative">
               <p className="text-sm font-semibold uppercase tracking-[0.24em] text-[var(--color-brand-300)]">
@@ -128,7 +158,9 @@ export function AnalysisDashboard({
               </p>
               <div className="mt-4 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
                 <div>
-                  <h1 className="max-w-3xl font-heading text-4xl text-white sm:text-5xl">{sessionTitle}</h1>
+                  <h1 className="max-w-3xl break-words font-heading text-4xl text-white sm:text-5xl">
+                    {sessionTitle}
+                  </h1>
                   <p className="mt-4 max-w-3xl text-base leading-8 text-[var(--muted-foreground)]">
                     A deterministic ATS-style analysis built from resume parsing, job-description keyword extraction,
                     and transparent weighted scoring logic.
@@ -166,12 +198,14 @@ export function AnalysisDashboard({
                   { label: "Created", value: createdAt, icon: Activity },
                   {
                     label: "Keyword coverage",
-                    value: scoreSummary ? `${scoreSummary.keywordCoverage}%` : "Pending",
+                    value:
+                      scoreSummary ? `${scoreSummary.keywordCoverage}%` : status === "FAILED" ? "Unavailable" : "Pending",
                     icon: Target
                   },
                   {
                     label: "Must-have coverage",
-                    value: scoreSummary ? `${scoreSummary.mustHaveCoverage}%` : "Pending",
+                    value:
+                      scoreSummary ? `${scoreSummary.mustHaveCoverage}%` : status === "FAILED" ? "Unavailable" : "Pending",
                     icon: CheckCircle2
                   },
                   {
@@ -193,10 +227,24 @@ export function AnalysisDashboard({
                   );
                 })}
               </div>
+
+              {statusMessage ? (
+                <div className="mt-6 rounded-[24px] border border-white/10 bg-[rgba(255,255,255,0.04)] p-5">
+                  <div className="flex items-start gap-3">
+                    <CircleAlert className="mt-0.5 size-5 text-[var(--color-brand-300)]" />
+                    <div>
+                      <p className="text-base font-semibold text-white">{statusMessage.title}</p>
+                      <p className="mt-2 text-sm leading-7 text-[var(--muted-foreground)]">
+                        {statusMessage.description}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ) : null}
             </div>
           </Card>
 
-          <Card>
+          <Card className="min-w-0">
             <p className="text-sm font-semibold uppercase tracking-[0.24em] text-[var(--color-brand-300)]">
               Scoring composition
             </p>
@@ -206,7 +254,13 @@ export function AnalysisDashboard({
               structure quality, alignment, and bonus signals.
             </p>
             <div className="mt-6">
-              <ScoreBreakdownChart data={scoreBreakdown} />
+              {scoreBreakdown.length > 0 ? (
+                <ScoreBreakdownChart data={scoreBreakdown} />
+              ) : (
+                <div className="flex min-h-[260px] items-center justify-center rounded-[24px] border border-dashed border-white/10 bg-white/4 px-6 text-center text-sm leading-7 text-[var(--muted-foreground)]">
+                  The score breakdown appears once resume text extraction and job-description scoring complete.
+                </div>
+              )}
             </div>
           </Card>
         </div>
@@ -273,9 +327,11 @@ export function AnalysisDashboard({
 
                   <div className="rounded-[24px] border border-white/8 bg-white/4 p-5">
                     <p className="text-xs uppercase tracking-[0.18em] text-[var(--muted-foreground)]">Raw job description</p>
-                    <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-white/82">
-                      {jobDescriptionRawText ?? "No job description was provided for this session."}
-                    </p>
+                    <div className="mt-3 max-h-[360px] overflow-y-auto rounded-2xl bg-[rgba(255,255,255,0.02)] p-4">
+                      <p className="whitespace-pre-wrap break-words text-sm leading-7 text-white/82">
+                        {jobDescriptionRawText ?? "No job description was provided for this session."}
+                      </p>
+                    </div>
                   </div>
                 </div>
               ) : (
@@ -324,11 +380,11 @@ export function AnalysisDashboard({
                       <FileText className="size-4" />
                       <p className="text-xs uppercase tracking-[0.18em]">Filename</p>
                     </div>
-                    <p className="mt-3 text-sm font-medium text-white">{fileMeta.originalName}</p>
+                    <p className="mt-3 break-all text-sm font-medium text-white">{fileMeta.originalName}</p>
                   </div>
                   <div className="rounded-2xl border border-white/8 bg-white/4 p-4">
                     <p className="text-xs uppercase tracking-[0.18em] text-[var(--muted-foreground)]">File type</p>
-                    <p className="mt-3 text-sm font-medium text-white">{fileMeta.mimeType}</p>
+                    <p className="mt-3 break-all text-sm font-medium text-white">{fileMeta.mimeType}</p>
                   </div>
                   <div className="rounded-2xl border border-white/8 bg-white/4 p-4">
                     <p className="text-xs uppercase tracking-[0.18em] text-[var(--muted-foreground)]">File size</p>
@@ -388,9 +444,16 @@ export function AnalysisDashboard({
                   </div>
                 </div>
               ) : (
-                <p className="mt-4 text-sm leading-7 text-[var(--muted-foreground)]">
-                  Parsed resume text is not available yet. Failed sessions usually come from scanned or image-heavy PDFs.
-                </p>
+                <div className="mt-5 rounded-[24px] border border-white/8 bg-white/4 p-5">
+                  <p className="text-base font-semibold text-white">
+                    {status === "FAILED" ? "We could not extract text from this resume." : "Parsed resume text is not available yet."}
+                  </p>
+                  <p className="mt-3 text-sm leading-7 text-[var(--muted-foreground)]">
+                    {status === "FAILED"
+                      ? "Try a text-based PDF or DOCX export instead of a scanned or image-only file, then run the analysis again."
+                      : "This usually means the upload is still processing or the analysis was created without a successful parse step."}
+                  </p>
+                </div>
               )}
             </Card>
 

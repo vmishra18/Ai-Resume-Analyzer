@@ -1,6 +1,9 @@
+import { execFile } from "node:child_process";
 import { promises as fs } from "node:fs";
+import path from "node:path";
+import { promisify } from "node:util";
 
-import { PDFParse } from "pdf-parse";
+const execFileAsync = promisify(execFile);
 
 interface ResumeExtractionInput {
   filePath: string;
@@ -8,17 +11,21 @@ interface ResumeExtractionInput {
 }
 
 async function extractPdfText(filePath: string) {
-  const buffer = await fs.readFile(filePath);
-  const parser = new PDFParse({
-    data: new Uint8Array(buffer),
-    disableFontFace: true
-  });
+  const parserCliPath = path.join(process.cwd(), "node_modules", "pdf-parse", "bin", "cli.mjs");
 
   try {
-    const result = await parser.getText();
-    return result.text;
-  } finally {
-    await parser.destroy();
+    await fs.access(parserCliPath);
+
+    const { stdout } = await execFileAsync(process.execPath, [parserCliPath, "text", filePath], {
+      maxBuffer: 16 * 1024 * 1024
+    });
+
+    return stdout;
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Unknown PDF parsing error";
+    throw new Error(`Unable to extract text from the uploaded PDF. ${message}`, {
+      cause: error
+    });
   }
 }
 

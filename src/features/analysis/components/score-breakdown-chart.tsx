@@ -29,7 +29,7 @@ interface ScoreBreakdownChartProps {
 
 export function ScoreBreakdownChart({ data }: ScoreBreakdownChartProps) {
   return (
-    <div className="h-[260px] w-full">
+    <div className="h-[260px] min-h-[260px] min-w-0 w-full">
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={data} margin={{ top: 10, right: 8, left: -24, bottom: 0 }}>
           <CartesianGrid stroke="rgba(255,255,255,0.08)" vertical={false} />
