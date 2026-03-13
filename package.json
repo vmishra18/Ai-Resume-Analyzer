@@ -4,7 +4,7 @@
   "private": true,
   "description": "Production-style ATS Resume Analyzer built with Next.js, Prisma, and deterministic NLP.",
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --webpack",
     "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint .",
