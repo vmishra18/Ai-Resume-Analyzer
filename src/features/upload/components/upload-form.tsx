@@ -116,7 +116,7 @@ export function UploadForm() {
           </h1>
           <p className="mt-5 max-w-2xl text-base leading-8 text-[var(--muted-foreground)]">
             This step captures the resume file, validates the format, stores file metadata, and creates the analysis
-            record that later parsing and scoring phases will build on.
+            record. The parser now runs immediately so the next screen can show extracted text and section detection.
           </p>
 
           <div className="mt-8 grid gap-3">
@@ -217,7 +217,7 @@ export function UploadForm() {
                 <p className="mt-3 text-sm text-rose-300">{errors.resume.message}</p>
               ) : (
                 <p className="mt-3 text-sm text-[var(--muted-foreground)]">
-                  Your upload creates an analysis session and stores file metadata for later parsing.
+                  Your upload creates an analysis session, stores file metadata, and immediately starts PDF or DOCX text extraction.
                 </p>
               )}
             </div>
@@ -235,7 +235,7 @@ export function UploadForm() {
                 <p className="mt-3 text-sm text-rose-300">{errors.jobDescription.message}</p>
               ) : (
                 <p className="mt-3 text-sm text-[var(--muted-foreground)]">
-                  Optional for now, but storing it now makes later analysis and history views much more realistic.
+                  Optional for now, but storing it now sets us up for the next keyword-extraction and scoring phases.
                 </p>
               )}
             </div>

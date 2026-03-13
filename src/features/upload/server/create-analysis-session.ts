@@ -2,6 +2,7 @@ import { promises as fs } from "node:fs";
 import path from "node:path";
 import { randomUUID } from "node:crypto";
 
+import { parseResumeFile } from "@/features/resume-parser/server/parse-resume-file";
 import type { CreateAnalysisSessionResponse } from "@/features/upload/lib/types";
 import { buildAnalysisTitle, getFileExtension, normalizeWhitespace, sanitizeFileName } from "@/features/upload/lib/helpers";
 import type { UploadRequestInput } from "@/features/upload/lib/schemas";
@@ -29,12 +30,13 @@ export async function createAnalysisSessionFromUpload(
   const { resume, jobDescription } = input;
   const normalizedJobDescription = normalizeWhitespace(jobDescription ?? "");
   const savedFile = await persistUploadedResume(resume);
+  const sessionTitle = buildAnalysisTitle(resume.name);
 
   try {
     const session = await db.analysisSession.create({
       data: {
-        title: buildAnalysisTitle(resume.name),
-        status: "PENDING",
+        title: sessionTitle,
+        status: "PROCESSING",
         uploadedFile: {
           create: {
             originalName: resume.name,
@@ -59,12 +61,56 @@ export async function createAnalysisSessionFromUpload(
       }
     });
 
-    return {
-      sessionId: session.id,
-      redirectTo: `/analyses/${session.id}`,
-      status: "PENDING",
-      title: session.title
-    };
+    try {
+      const parsedResume = await parseResumeFile({
+        filePath: savedFile.absolutePath,
+        mimeType: resume.type
+      });
+
+      await db.analysisSession.update({
+        where: { id: session.id },
+        data: {
+          status: "PENDING",
+          parsedResume: {
+            create: {
+              rawText: parsedResume.rawText,
+              normalizedText: parsedResume.normalizedText,
+              summary: parsedResume.summary,
+              hasSummary: parsedResume.sections.summary,
+              hasSkills: parsedResume.sections.skills,
+              hasExperience: parsedResume.sections.experience,
+              hasEducation: parsedResume.sections.education,
+              hasProjects: parsedResume.sections.projects,
+              structureScore: parsedResume.structureScore
+            }
+          }
+        }
+      });
+
+      return {
+        sessionId: session.id,
+        redirectTo: `/analyses/${session.id}`,
+        status: "PENDING",
+        title: session.title
+      };
+    } catch (error) {
+      console.error("Failed to parse uploaded resume", error);
+
+      await db.analysisSession.update({
+        where: { id: session.id },
+        data: {
+          status: "FAILED"
+        }
+      });
+
+      return {
+        sessionId: session.id,
+        redirectTo: `/analyses/${session.id}`,
+        status: "FAILED",
+        title: sessionTitle
+      };
+    }
+
   } catch (error) {
     await fs.rm(savedFile.absolutePath, { force: true });
     throw error;

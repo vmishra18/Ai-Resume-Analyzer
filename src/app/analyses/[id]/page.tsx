@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 
 import { Card } from "@/components/ui/card";
 import { formatBytes } from "@/features/upload/lib/helpers";
+import { clipText, countWords } from "@/features/resume-parser/server/normalization";
 import { db } from "@/lib/db";
 
 interface AnalysisDetailPageProps {
@@ -16,6 +17,7 @@ export default async function AnalysisDetailPage({ params }: AnalysisDetailPageP
   const session = await db.analysisSession.findUnique({
     where: { id },
     include: {
+      parsedResume: true,
       uploadedFile: true,
       jobDescription: true
     }
@@ -29,6 +31,16 @@ export default async function AnalysisDetailPage({ params }: AnalysisDetailPageP
     dateStyle: "medium",
     timeStyle: "short"
   }).format(session.createdAt);
+  const parsedWordCount = session.parsedResume ? countWords(session.parsedResume.normalizedText) : 0;
+  const sectionCards = session.parsedResume
+    ? [
+        { label: "Summary", value: session.parsedResume.hasSummary },
+        { label: "Skills", value: session.parsedResume.hasSkills },
+        { label: "Experience", value: session.parsedResume.hasExperience },
+        { label: "Education", value: session.parsedResume.hasEducation },
+        { label: "Projects", value: session.parsedResume.hasProjects }
+      ]
+    : [];
 
   return (
     <section className="px-6 py-20 lg:px-8">
@@ -39,8 +51,8 @@ export default async function AnalysisDetailPage({ params }: AnalysisDetailPageP
           </p>
           <h1 className="mt-4 font-heading text-4xl text-white">{session.title}</h1>
           <p className="mt-4 max-w-3xl text-base leading-8 text-[var(--muted-foreground)]">
-            The upload was stored successfully and the analysis record is ready. Resume parsing and scoring are the next
-            phases, so this page currently acts as a checkpoint showing the captured input and persisted metadata.
+            The upload is now stored and the resume parsing pipeline has already run. This page shows the extracted text,
+            section heuristics, and structural signals that the later ATS scoring engine will build on.
           </p>
 
           <div className="mt-8 grid gap-4 md:grid-cols-2">
@@ -53,6 +65,16 @@ export default async function AnalysisDetailPage({ params }: AnalysisDetailPageP
               <p className="mt-2 text-2xl font-semibold text-white">{createdAt}</p>
             </div>
           </div>
+
+          {session.status === "FAILED" ? (
+            <div className="mt-6 rounded-[24px] border border-amber-400/20 bg-amber-400/10 p-5">
+              <p className="text-sm font-semibold text-amber-200">Resume parsing did not complete successfully.</p>
+              <p className="mt-2 text-sm leading-7 text-amber-50/80">
+                This usually means the file had little or no extractable text, which can happen with scanned PDFs or
+                heavily formatted exports. The upload metadata was still saved so the session can be retried later.
+              </p>
+            </div>
+          ) : null}
 
           <div className="mt-6 rounded-[24px] border border-white/8 bg-white/4 p-5">
             <p className="text-xs uppercase tracking-[0.18em] text-[var(--muted-foreground)]">Job description input</p>
@@ -88,10 +110,55 @@ export default async function AnalysisDetailPage({ params }: AnalysisDetailPageP
           </Card>
 
           <Card>
+            <h2 className="text-2xl font-semibold text-white">Parsed resume output</h2>
+            {session.parsedResume ? (
+              <div className="mt-5 space-y-5">
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="rounded-2xl border border-white/8 bg-white/4 p-4">
+                    <p className="text-xs uppercase tracking-[0.18em] text-[var(--muted-foreground)]">Word count</p>
+                    <p className="mt-2 text-2xl font-semibold text-white">{parsedWordCount}</p>
+                  </div>
+                  <div className="rounded-2xl border border-white/8 bg-white/4 p-4">
+                    <p className="text-xs uppercase tracking-[0.18em] text-[var(--muted-foreground)]">Structure score</p>
+                    <p className="mt-2 text-2xl font-semibold text-white">{session.parsedResume.structureScore}/100</p>
+                  </div>
+                </div>
+
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {sectionCards.map((item) => (
+                    <div key={item.label} className="rounded-2xl border border-white/8 bg-white/4 px-4 py-3">
+                      <p className="text-xs uppercase tracking-[0.18em] text-[var(--muted-foreground)]">{item.label}</p>
+                      <p className="mt-2 text-sm font-medium text-white">{item.value ? "Detected" : "Missing"}</p>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="rounded-[24px] border border-white/8 bg-white/4 p-5">
+                  <p className="text-xs uppercase tracking-[0.18em] text-[var(--muted-foreground)]">Extracted summary</p>
+                  <p className="mt-3 text-sm leading-7 text-white/82">
+                    {session.parsedResume.summary ?? "No summary section was detected, so the parser could not extract one."}
+                  </p>
+                </div>
+
+                <div className="rounded-[24px] border border-white/8 bg-white/4 p-5">
+                  <p className="text-xs uppercase tracking-[0.18em] text-[var(--muted-foreground)]">Normalized text preview</p>
+                  <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-white/82">
+                    {clipText(session.parsedResume.normalizedText, 1600)}
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <p className="mt-4 text-sm leading-7 text-[var(--muted-foreground)]">
+                Parsed resume text is not available yet. If the session status is `FAILED`, the file likely had no
+                extractable text. Otherwise, this session is waiting for the parser to run.
+              </p>
+            )}
+          </Card>
+
+          <Card>
             <h2 className="text-2xl font-semibold text-white">What comes next</h2>
             <div className="mt-5 space-y-3">
               {[
-                "Parse PDF and DOCX files into normalized resume text.",
                 "Extract job description keywords and must-have skills.",
                 "Calculate ATS score breakdown and render the dashboard."
               ].map((item) => (

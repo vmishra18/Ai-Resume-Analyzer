@@ -25,6 +25,8 @@ Implemented so far:
 - server-side upload endpoint and local file persistence
 - analysis session creation flow with upload metadata storage
 - analysis detail route for persisted session intake review
+- PDF and DOCX parsing pipeline with normalized text extraction
+- section detection, extracted summary heuristics, and structure scoring
 
 ## Getting started
 
