@@ -23,7 +23,12 @@ async function submitAuthRequest<T>(path: string, values: T) {
     },
     body: JSON.stringify(values)
   });
-  const payload = (await response.json()) as AuthSuccessResponse | AuthErrorResponse;
+  const responseText = await response.text();
+  const payload = responseText
+    ? (JSON.parse(responseText) as AuthSuccessResponse | AuthErrorResponse)
+    : ({
+        message: "Something went wrong. Please try again."
+      } as AuthErrorResponse);
 
   return { response, payload };
 }
