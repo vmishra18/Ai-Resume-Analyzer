@@ -1,42 +1,78 @@
 # Interview Notes
 
+## Short intro
+
+ATS Resume Analyzer is a production-style web app that evaluates a resume against a job description using deterministic parsing and rule-based scoring. I built it to look and feel like a real SaaS product while staying fully explainable and free of paid AI APIs.
+
 ## Repo assets
 
 - GitHub repo description: `ATS Resume Analyzer: a deterministic, full-stack SaaS app for resume-to-job scoring with explainable insights.`
 - One-line project pitch: `A premium full-stack web app that scores resumes against job descriptions using transparent, rule-based NLP and ATS-style analysis.`
 - Resume bullet: `Built a production-style ATS Resume Analyzer with Next.js, Prisma, SQLite, and deterministic NLP scoring, including PDF/DOCX parsing, explainable keyword analysis, and a polished SaaS dashboard.`
 
-## How to explain the project
+## 30-second explanation
 
-Start with the user problem:
+- Users upload a PDF or DOCX resume and optionally provide a job description.
+- The backend extracts and normalizes text, processes the job description into structured keywords, and compares the two with deterministic rules.
+- The app persists every artifact and returns a polished dashboard with ATS score, keyword gaps, section completeness, suggestions, history, and reports.
 
-- Most resume analyzers either hide their scoring logic or rely on paid AI APIs.
-- I wanted a tool that felt product-grade while staying fully explainable and cost-free.
+## Architecture summary
 
-Explain the architecture in one pass:
+1. Frontend:
+   landing page, upload flow, dashboard, history page, shareable results
+2. Backend:
+   file validation, text extraction, JD processing, scoring, suggestion generation, report export
+3. Persistence:
+   Prisma models for sessions, parsed resumes, job descriptions, keyword results, scores, and suggestions
 
-1. The frontend handles upload UX, dashboard rendering, history views, and polished state management.
-2. The backend validates files, extracts text, processes job descriptions, and runs a deterministic scoring engine.
-3. Prisma persists every artifact so results can be revisited, compared, and eventually exported or shared.
+## Why deterministic scoring
 
-## Why the scoring model is strong
+- It is honest and explainable.
+- It avoids API costs and external dependencies.
+- It is easy to debug and defend in interviews.
+- It is better for a portfolio project where system design clarity matters more than pretending to have ML.
 
-- It is deterministic, so every score is traceable to concrete rules.
-- It is more honest than pretending there is ML when there is not.
-- It is easy to debug, test, and discuss in interviews.
-- It balances keyword coverage with section completeness and structural quality, which helps avoid naive keyword stuffing.
+## Strong engineering decisions to highlight
 
-## Good talking points
-
-- I separated parsing, NLP, scoring, and suggestions so each service has one responsibility.
-- I chose SQLite first for local simplicity, but the schema is ready to move to PostgreSQL for deployment.
-- I designed the UI to look like a startup product because visual quality changes how recruiters perceive engineering projects.
-- I made the project explainable enough that a recruiter or hiring manager could understand why a resume scored the way it did.
+- I separated parsing, NLP, scoring, and presentation into different modules so business logic is not trapped in UI files.
+- I persisted intermediate artifacts, not just the final score, so features like history, share pages, and downloadable reports were easy to add later.
+- I designed the scoring engine to penalize missing sections and weak alignment, which keeps it from rewarding naive keyword stuffing.
+- I built the UI to feel like a startup product, because polish matters when recruiters review portfolio work.
 
 ## Demo flow
 
-1. Show the landing page and explain the value proposition.
-2. Walk through the upload route and describe validation and parsing.
-3. Open the results dashboard and explain score weights, matched keywords, missing terms, and suggestions.
-4. Show history and discuss how persistence enables trend analysis and resume comparison.
-5. Close by emphasizing that the entire pipeline runs on free and open-source tooling.
+1. Start on the landing page.
+   Explain the value proposition and the “no black-box AI” positioning.
+2. Open the upload flow.
+   Show file validation, accepted formats, and optional job description input.
+3. Open a completed analysis dashboard.
+   Walk through the ATS score, score breakdown, matched vs missing keywords, and suggestions.
+4. Show the history page.
+   Explain how stored sessions make the product feel like a real SaaS workflow.
+5. Open the shareable view and report export.
+   Emphasize polish and product completeness.
+
+## Questions you may get
+
+### Why not use OpenAI or another LLM?
+
+I wanted the system to stay free, reproducible, and explainable. For this use case, deterministic scoring was a stronger product and interview choice than adding an opaque paid dependency.
+
+### How would you improve accuracy later?
+
+- expand the keyword catalog
+- add better phrase dictionaries by domain
+- improve synonym handling
+- add optional semantic matching as a secondary assistive layer, while keeping the rule-based score visible and primary
+
+### How would you scale this in production?
+
+- move SQLite to PostgreSQL
+- store uploads in object storage
+- move parsing/scoring to background jobs
+- add auth and per-user session isolation
+- add caching for heavy report and trend views
+
+### What was the hardest part?
+
+Keeping the product honest while still making it feel impressive. That meant investing in architecture, UX, and explainability instead of hiding behind vague “AI” claims.
