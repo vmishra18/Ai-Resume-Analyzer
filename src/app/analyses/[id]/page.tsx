@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 
 import { Card } from "@/components/ui/card";
+import type { ScoreExplanation } from "@/features/analysis/lib/types";
 import type { JobDescriptionKeyword } from "@/features/job-description/lib/types";
 import { formatBytes } from "@/features/upload/lib/helpers";
 import { clipText, countWords } from "@/features/resume-parser/server/normalization";
@@ -16,13 +17,24 @@ function getJobDescriptionKeywords(value: unknown) {
   return Array.isArray(value) ? (value as JobDescriptionKeyword[]) : [];
 }
 
+function getScoreExplanation(value: unknown) {
+  return (value ?? null) as ScoreExplanation | null;
+}
+
 export default async function AnalysisDetailPage({ params }: AnalysisDetailPageProps) {
   const { id } = await params;
 
   const session = await db.analysisSession.findUnique({
     where: { id },
     include: {
+      keywordResults: {
+        orderBy: [{ matchType: "asc" }, { occurrences: "desc" }]
+      },
       parsedResume: true,
+      scoringSummary: true,
+      suggestions: {
+        orderBy: [{ priority: "asc" }, { createdAt: "asc" }]
+      },
       uploadedFile: true,
       jobDescription: true
     }
@@ -40,6 +52,10 @@ export default async function AnalysisDetailPage({ params }: AnalysisDetailPageP
   const extractedJobKeywords = getJobDescriptionKeywords(session.jobDescription?.extractedKeywords);
   const mustHaveKeywords = getJobDescriptionKeywords(session.jobDescription?.mustHaveKeywords);
   const niceToHaveKeywords = getJobDescriptionKeywords(session.jobDescription?.niceToHaveKeywords);
+  const scoreExplanation = getScoreExplanation(session.scoringSummary?.explanation);
+  const matchedKeywordResults = session.keywordResults.filter((keyword) => keyword.matchType === "MATCHED");
+  const partialKeywordResults = session.keywordResults.filter((keyword) => keyword.matchType === "PARTIAL");
+  const missingKeywordResults = session.keywordResults.filter((keyword) => keyword.matchType === "MISSING");
   const sectionCards = session.parsedResume
     ? [
         { label: "Summary", value: session.parsedResume.hasSummary },
@@ -59,11 +75,11 @@ export default async function AnalysisDetailPage({ params }: AnalysisDetailPageP
           </p>
           <h1 className="mt-4 font-heading text-4xl text-white">{session.title}</h1>
           <p className="mt-4 max-w-3xl text-base leading-8 text-[var(--muted-foreground)]">
-            The upload is now stored and the resume parsing pipeline has already run. This page shows the extracted text,
-            section heuristics, and structural signals that the later ATS scoring engine will build on.
+            This session now shows the full deterministic pipeline: parsed resume text, structured job-description
+            signals, and the ATS-style scoring breakdown generated from transparent comparison rules.
           </p>
 
-          <div className="mt-8 grid gap-4 md:grid-cols-2">
+          <div className="mt-8 grid gap-4 md:grid-cols-3">
             <div className="rounded-2xl border border-white/8 bg-white/4 p-5">
               <p className="text-xs uppercase tracking-[0.18em] text-[var(--muted-foreground)]">Status</p>
               <p className="mt-2 text-2xl font-semibold text-white">{session.status}</p>
@@ -71,6 +87,12 @@ export default async function AnalysisDetailPage({ params }: AnalysisDetailPageP
             <div className="rounded-2xl border border-white/8 bg-white/4 p-5">
               <p className="text-xs uppercase tracking-[0.18em] text-[var(--muted-foreground)]">Created</p>
               <p className="mt-2 text-2xl font-semibold text-white">{createdAt}</p>
+            </div>
+            <div className="rounded-2xl border border-white/8 bg-white/4 p-5">
+              <p className="text-xs uppercase tracking-[0.18em] text-[var(--muted-foreground)]">ATS score</p>
+              <p className="mt-2 text-2xl font-semibold text-white">
+                {session.overallScore ?? "Pending"}
+              </p>
             </div>
           </div>
 
@@ -116,6 +138,50 @@ export default async function AnalysisDetailPage({ params }: AnalysisDetailPageP
         </Card>
 
         <div className="space-y-6">
+          <Card>
+            <h2 className="text-2xl font-semibold text-white">Score breakdown</h2>
+            {session.scoringSummary ? (
+              <div className="mt-5 space-y-5">
+                <div className="grid gap-4 sm:grid-cols-2">
+                  {[
+                    { label: "Keyword match", value: session.scoringSummary.keywordMatchScore },
+                    { label: "Must-have skills", value: session.scoringSummary.mustHaveSkillScore },
+                    { label: "Section completeness", value: session.scoringSummary.sectionCompletenessScore },
+                    { label: "Role relevance", value: session.scoringSummary.roleRelevanceScore },
+                    { label: "Structure quality", value: session.scoringSummary.structureQualityScore },
+                    { label: "Job alignment", value: session.scoringSummary.alignmentScore }
+                  ].map((item) => (
+                    <div key={item.label} className="rounded-2xl border border-white/8 bg-white/4 p-4">
+                      <p className="text-xs uppercase tracking-[0.18em] text-[var(--muted-foreground)]">{item.label}</p>
+                      <p className="mt-2 text-2xl font-semibold text-white">{item.value}</p>
+                    </div>
+                  ))}
+                </div>
+
+                {scoreExplanation ? (
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="rounded-2xl border border-white/8 bg-white/4 p-4">
+                      <p className="text-xs uppercase tracking-[0.18em] text-[var(--muted-foreground)]">Keyword coverage</p>
+                      <p className="mt-2 text-xl font-semibold text-white">
+                        {scoreExplanation.keywordCoverage}% ({scoreExplanation.matchedKeywordCount} matched, {scoreExplanation.partialKeywordCount} partial)
+                      </p>
+                    </div>
+                    <div className="rounded-2xl border border-white/8 bg-white/4 p-4">
+                      <p className="text-xs uppercase tracking-[0.18em] text-[var(--muted-foreground)]">Must-have coverage</p>
+                      <p className="mt-2 text-xl font-semibold text-white">
+                        {scoreExplanation.mustHaveCoverage}% ({scoreExplanation.matchedMustHaveCount} matched, {scoreExplanation.partialMustHaveCount} partial)
+                      </p>
+                    </div>
+                  </div>
+                ) : null}
+              </div>
+            ) : (
+              <p className="mt-4 text-sm leading-7 text-[var(--muted-foreground)]">
+                A full ATS score is created when the resume has been parsed successfully and a job description is available.
+              </p>
+            )}
+          </Card>
+
           <Card>
             <h2 className="text-2xl font-semibold text-white">Uploaded resume</h2>
             {session.uploadedFile ? (
@@ -232,16 +298,85 @@ export default async function AnalysisDetailPage({ params }: AnalysisDetailPageP
           </Card>
 
           <Card>
-            <h2 className="text-2xl font-semibold text-white">What comes next</h2>
-            <div className="mt-5 space-y-3">
-              {[
-                "Calculate ATS score breakdown and render the dashboard."
-              ].map((item) => (
-                <div key={item} className="rounded-2xl border border-white/8 bg-white/4 px-4 py-3">
-                  <p className="text-sm leading-7 text-[var(--muted-foreground)]">{item}</p>
+            <h2 className="text-2xl font-semibold text-white">Keyword match results</h2>
+            {session.keywordResults.length > 0 ? (
+              <div className="mt-5 space-y-5">
+                <div>
+                  <p className="text-xs uppercase tracking-[0.18em] text-[var(--muted-foreground)]">Matched keywords</p>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {matchedKeywordResults.slice(0, 12).map((keyword) => (
+                      <span
+                        key={`matched-${keyword.id}`}
+                        className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-sm text-emerald-100"
+                      >
+                        {keyword.keyword}
+                      </span>
+                    ))}
+                  </div>
                 </div>
-              ))}
-            </div>
+
+                <div>
+                  <p className="text-xs uppercase tracking-[0.18em] text-[var(--muted-foreground)]">Partial matches</p>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {partialKeywordResults.length > 0 ? (
+                      partialKeywordResults.slice(0, 10).map((keyword) => (
+                        <span
+                          key={`partial-${keyword.id}`}
+                          className="rounded-full border border-amber-400/20 bg-amber-400/10 px-3 py-1 text-sm text-amber-100"
+                        >
+                          {keyword.keyword}
+                        </span>
+                      ))
+                    ) : (
+                      <p className="text-sm text-[var(--muted-foreground)]">No partial matches detected.</p>
+                    )}
+                  </div>
+                </div>
+
+                <div>
+                  <p className="text-xs uppercase tracking-[0.18em] text-[var(--muted-foreground)]">Missing keywords</p>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {missingKeywordResults.slice(0, 12).map((keyword) => (
+                      <span
+                        key={`missing-${keyword.id}`}
+                        className="rounded-full border border-rose-400/20 bg-rose-400/10 px-3 py-1 text-sm text-rose-100"
+                      >
+                        {keyword.keyword}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <p className="mt-4 text-sm leading-7 text-[var(--muted-foreground)]">
+                Keyword results will appear here once a job description has been processed and compared to the parsed resume.
+              </p>
+            )}
+          </Card>
+
+          <Card>
+            <h2 className="text-2xl font-semibold text-white">Improvement suggestions</h2>
+            {session.suggestions.length > 0 ? (
+              <div className="mt-5 space-y-3">
+                {session.suggestions.map((suggestion) => (
+                  <div key={suggestion.id} className="rounded-2xl border border-white/8 bg-white/4 p-4">
+                    <div className="flex items-center justify-between gap-3">
+                      <p className="text-base font-semibold text-white">{suggestion.title}</p>
+                      <span className="rounded-full border border-white/10 bg-white/6 px-3 py-1 text-xs uppercase tracking-[0.14em] text-[var(--muted-foreground)]">
+                        {suggestion.priority}
+                      </span>
+                    </div>
+                    <p className="mt-3 text-sm leading-7 text-[var(--muted-foreground)]">
+                      {suggestion.description}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="mt-4 text-sm leading-7 text-[var(--muted-foreground)]">
+                Suggestions will appear after the scoring engine compares the resume and job description.
+              </p>
+            )}
           </Card>
         </div>
       </div>

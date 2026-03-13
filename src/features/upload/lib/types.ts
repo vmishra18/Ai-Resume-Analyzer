@@ -1,7 +1,7 @@
 export interface CreateAnalysisSessionResponse {
   sessionId: string;
   redirectTo: string;
-  status: "PENDING" | "FAILED";
+  status: "PENDING" | "COMPLETED" | "FAILED";
   title: string;
 }
 

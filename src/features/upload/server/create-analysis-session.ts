@@ -2,7 +2,14 @@ import { promises as fs } from "node:fs";
 import path from "node:path";
 import { randomUUID } from "node:crypto";
 
-import type { Prisma } from "@prisma/client";
+import type {
+  KeywordCategory as PrismaKeywordCategory,
+  KeywordMatchType as PrismaKeywordMatchType,
+  Prisma,
+  SuggestionPriority as PrismaSuggestionPriority,
+  SuggestionType as PrismaSuggestionType
+} from "@prisma/client";
+import { analyzeResumeAgainstJob } from "@/features/analysis/server/analysis-engine";
 import { processJobDescription } from "@/features/job-description/server/process-job-description";
 import { parseResumeFile } from "@/features/resume-parser/server/parse-resume-file";
 import type { CreateAnalysisSessionResponse } from "@/features/upload/lib/types";
@@ -24,6 +31,22 @@ async function persistUploadedResume(file: File) {
     absolutePath,
     relativePath
   };
+}
+
+function toPrismaKeywordCategory(category: string) {
+  return category.toUpperCase() as PrismaKeywordCategory;
+}
+
+function toPrismaKeywordMatchType(matchType: string) {
+  return matchType.toUpperCase() as PrismaKeywordMatchType;
+}
+
+function toPrismaSuggestionPriority(priority: string) {
+  return priority.toUpperCase() as PrismaSuggestionPriority;
+}
+
+function toPrismaSuggestionType(suggestionType: string) {
+  return suggestionType.toUpperCase() as PrismaSuggestionType;
 }
 
 export async function createAnalysisSessionFromUpload(
@@ -78,34 +101,90 @@ export async function createAnalysisSessionFromUpload(
         mimeType: resume.type
       });
 
-      await db.analysisSession.update({
-        where: { id: session.id },
-        data: {
-          status: "PENDING",
-          parsedResume: {
-            create: {
-              rawText: parsedResume.rawText,
-              normalizedText: parsedResume.normalizedText,
-              summary: parsedResume.summary,
-              hasSummary: parsedResume.sections.summary,
-              hasSkills: parsedResume.sections.skills,
-              hasExperience: parsedResume.sections.experience,
-              hasEducation: parsedResume.sections.education,
-              hasProjects: parsedResume.sections.projects,
-              structureScore: parsedResume.structureScore
-            }
+      const analysisSummary = processedJobDescription
+        ? analyzeResumeAgainstJob(parsedResume, processedJobDescription)
+        : null;
+
+      await db.$transaction(async (transaction) => {
+        await transaction.analysisSession.update({
+          where: { id: session.id },
+          data: {
+            status: analysisSummary ? "COMPLETED" : "PENDING",
+            overallScore: analysisSummary?.score.total,
+            parsedResume: {
+              create: {
+                rawText: parsedResume.rawText,
+                normalizedText: parsedResume.normalizedText,
+                summary: parsedResume.summary,
+                hasSummary: parsedResume.sections.summary,
+                hasSkills: parsedResume.sections.skills,
+                hasExperience: parsedResume.sections.experience,
+                hasEducation: parsedResume.sections.education,
+                hasProjects: parsedResume.sections.projects,
+                structureScore: parsedResume.structureScore
+              }
+            },
+            scoringSummary: analysisSummary
+              ? {
+                  create: {
+                    keywordMatchScore: analysisSummary.score.keywordMatch,
+                    mustHaveSkillScore: analysisSummary.score.mustHaveSkills,
+                    sectionCompletenessScore: analysisSummary.score.sectionCompleteness,
+                    roleRelevanceScore: analysisSummary.score.roleRelevance,
+                    structureQualityScore: analysisSummary.score.structureQuality,
+                    alignmentScore: analysisSummary.score.alignment,
+                    bonusScore: analysisSummary.score.bonus,
+                    explanation: analysisSummary.explanation as unknown as Prisma.InputJsonValue
+                  }
+                }
+              : undefined
           }
+        });
+
+        if (!analysisSummary) {
+          return;
+        }
+
+        const allKeywordResults = [
+          ...analysisSummary.matchedKeywords,
+          ...analysisSummary.partialKeywords,
+          ...analysisSummary.missingKeywords
+        ];
+
+        if (allKeywordResults.length > 0) {
+          await transaction.keywordResult.createMany({
+            data: allKeywordResults.map((keyword) => ({
+              sessionId: session.id,
+              keyword: keyword.keyword,
+              normalizedKeyword: keyword.normalizedKeyword,
+              category: toPrismaKeywordCategory(keyword.category),
+              matchType: toPrismaKeywordMatchType(keyword.matchType),
+              occurrences: keyword.occurrences
+            }))
+          });
+        }
+
+        if (analysisSummary.suggestions.length > 0) {
+          await transaction.suggestion.createMany({
+            data: analysisSummary.suggestions.map((suggestion) => ({
+              sessionId: session.id,
+              title: suggestion.title,
+              description: suggestion.description,
+              priority: toPrismaSuggestionPriority(suggestion.priority),
+              suggestionType: toPrismaSuggestionType(suggestion.suggestionType)
+            }))
+          });
         }
       });
 
       return {
         sessionId: session.id,
         redirectTo: `/analyses/${session.id}`,
-        status: "PENDING",
+        status: analysisSummary ? "COMPLETED" : "PENDING",
         title: session.title
       };
     } catch (error) {
-      console.error("Failed to parse uploaded resume", error);
+      console.error("Failed to parse or analyze uploaded resume", error);
 
       await db.analysisSession.update({
         where: { id: session.id },
@@ -121,7 +200,6 @@ export async function createAnalysisSessionFromUpload(
         title: sessionTitle
       };
     }
-
   } catch (error) {
     await fs.rm(savedFile.absolutePath, { force: true });
     throw error;

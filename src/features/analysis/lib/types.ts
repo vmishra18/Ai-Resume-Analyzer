@@ -5,12 +5,19 @@ export type KeywordCategory =
   | "qualification"
   | "domain";
 
+export type KeywordMatchType = "matched" | "missing" | "partial";
+export type SuggestionPriority = "low" | "medium" | "high";
+export type SuggestionType = "keyword" | "section" | "structure" | "content" | "readability";
+
 export interface KeywordArtifact {
   keyword: string;
   normalizedKeyword: string;
   category: KeywordCategory;
   matched: boolean;
+  matchType: KeywordMatchType;
   occurrences: number;
+  isMustHave?: boolean;
+  source?: "catalog" | "phrase";
 }
 
 export interface SectionCompleteness {
@@ -34,8 +41,33 @@ export interface ScoreBreakdown {
 
 export interface AnalysisSummary {
   score: ScoreBreakdown;
+  explanation: ScoreExplanation;
   matchedKeywords: KeywordArtifact[];
+  partialKeywords: KeywordArtifact[];
   missingKeywords: KeywordArtifact[];
   sectionCompleteness: SectionCompleteness;
-  suggestions: string[];
+  suggestions: AnalysisSuggestion[];
+}
+
+export interface ScoreExplanation {
+  keywordCoverage: number;
+  matchedKeywordCount: number;
+  partialKeywordCount: number;
+  totalKeywordCount: number;
+  mustHaveCoverage: number;
+  matchedMustHaveCount: number;
+  partialMustHaveCount: number;
+  totalMustHaveCount: number;
+  sectionCoverage: number;
+  roleRelevanceRaw: number;
+  structureQualityRaw: number;
+  alignmentRaw: number;
+  bonusSignals: string[];
+}
+
+export interface AnalysisSuggestion {
+  title: string;
+  description: string;
+  priority: SuggestionPriority;
+  suggestionType: SuggestionType;
 }

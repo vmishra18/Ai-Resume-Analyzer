@@ -29,6 +29,8 @@ Implemented so far:
 - section detection, extracted summary heuristics, and structure scoring
 - job description keyword extraction with must-have vs nice-to-have detection
 - role title, seniority, and categorized keyword insights persisted for later scoring
+- deterministic ATS scoring with weighted breakdown persistence
+- keyword match results and rule-based improvement suggestions stored per analysis
 
 ## Getting started
 
