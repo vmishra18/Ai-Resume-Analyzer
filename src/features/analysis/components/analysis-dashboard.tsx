@@ -1,6 +1,15 @@
 import Link from "next/link";
 import type { Route } from "next";
-import { Activity, BriefcaseBusiness, CheckCircle2, CircleAlert, FileText, Sparkles, Target } from "lucide-react";
+import {
+  Activity,
+  BriefcaseBusiness,
+  CheckCircle2,
+  CircleAlert,
+  FileText,
+  Gauge,
+  Sparkles,
+  Target
+} from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -23,11 +32,16 @@ export interface AnalysisDashboardProps {
     partialKeywords: number;
     totalKeywords: number;
     bonusSignals: string[];
+    readabilityScore: number;
+    bulletQualityScore: number;
+    estimatedYearsExperience: number | null;
+    requiredYearsExperience: number | null;
   } | null;
   roleMeta: {
     title: string | null;
     seniority: string | null;
     extractedKeywordCount: number;
+    requiredYearsExperience: number | null;
   } | null;
   fileMeta: {
     originalName: string;
@@ -82,7 +96,7 @@ export interface AnalysisDashboardProps {
 
 function getScoreTone(score: number | null) {
   if (score === null) {
-    return "text-white";
+    return "text-[var(--foreground)]";
   }
 
   if (score >= 80) {
@@ -90,10 +104,10 @@ function getScoreTone(score: number | null) {
   }
 
   if (score >= 60) {
-    return "text-amber-200";
+    return "text-amber-300";
   }
 
-  return "text-rose-200";
+  return "text-rose-300";
 }
 
 function getStatusMessage(status: string, hasParsedResume: boolean) {
@@ -147,31 +161,39 @@ export function AnalysisDashboard({
   const statusMessage = getStatusMessage(status, Boolean(parsedResume));
 
   return (
-    <section className="px-6 py-16 lg:px-8 lg:py-20">
-      <div className="mx-auto max-w-7xl">
-        <div className="grid gap-6 xl:grid-cols-[1.25fr_0.75fr]">
-          <Card className="relative min-w-0 overflow-hidden">
+    <section className="px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
+      <div className="mx-auto max-w-7xl space-y-6">
+        <div className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
+          <Card className="relative overflow-hidden">
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(52,211,153,0.18),transparent_34%),radial-gradient(circle_at_bottom_left,rgba(245,106,72,0.16),transparent_32%)]" />
             <div className="relative">
               <p className="text-sm font-semibold uppercase tracking-[0.24em] text-[var(--color-brand-300)]">
                 {headerBadge}
               </p>
-              <div className="mt-4 grid gap-5 lg:grid-cols-[minmax(0,1fr)_220px] lg:items-end">
-                <div className="min-w-0">
-                  <h1 className="max-w-full font-heading text-4xl text-white [overflow-wrap:anywhere] sm:text-5xl">
+              <div className="mt-5 flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+                <div className="min-w-0 max-w-3xl">
+                  <h1 className="font-heading text-4xl text-[var(--foreground)] [overflow-wrap:anywhere] sm:text-5xl">
                     {sessionTitle}
                   </h1>
-                  <p className="mt-4 max-w-3xl text-base leading-8 text-[var(--muted-foreground)]">
-                    See how your resume matches this role, where it falls short, and what to improve before you apply.
+                  <p className="mt-4 text-base leading-8 text-[var(--muted-foreground)]">
+                    Review the match at a glance, then inspect the skills, readability, and missing signals driving the
+                    score.
                   </p>
                 </div>
 
-                <div className="rounded-[28px] border border-white/10 bg-[rgba(5,7,12,0.48)] px-6 py-5 text-right shadow-[0_16px_40px_rgba(7,10,18,0.25)] lg:justify-self-end">
-                  <p className="text-xs uppercase tracking-[0.18em] text-[var(--muted-foreground)]">ATS score</p>
-                  <p className={`mt-2 font-heading text-6xl ${getScoreTone(overallScore)}`}>
-                    {overallScore ?? "--"}
-                  </p>
-                  <p className="mt-2 text-sm text-[var(--muted-foreground)]">Status: {status}</p>
+                <div className="grid min-w-[240px] gap-3 rounded-[28px] border border-[var(--border-soft)] bg-[rgba(5,7,12,0.32)] p-5 shadow-[0_16px_40px_rgba(7,10,18,0.25)]">
+                  <div>
+                    <p className="text-xs uppercase tracking-[0.18em] text-[var(--muted-foreground)]">ATS score</p>
+                    <p className={`mt-2 font-heading text-6xl ${getScoreTone(overallScore)}`}>{overallScore ?? "--"}</p>
+                    <p className="mt-2 text-sm text-[var(--muted-foreground)]">Status: {status}</p>
+                  </div>
+                  <div className="grid gap-2 rounded-2xl border border-[var(--border-soft)] bg-[var(--surface-2)] p-4">
+                    <p className="text-xs uppercase tracking-[0.18em] text-[var(--muted-foreground)]">Role fit</p>
+                    <p className="text-sm font-semibold text-[var(--foreground)]">
+                      {roleMeta?.title ?? "Role not detected"}
+                      {roleMeta?.requiredYearsExperience ? ` · ${roleMeta.requiredYearsExperience}+ years` : ""}
+                    </p>
+                  </div>
                 </div>
               </div>
 
@@ -186,25 +208,26 @@ export function AnalysisDashboard({
                   <Button asChild size="sm" variant="secondary">
                     <Link href={actions.shareHref}>Share view</Link>
                   </Button>
+                  <Button asChild size="sm" variant="secondary">
+                    <Link href="/compare">Compare versions</Link>
+                  </Button>
                   <Button asChild size="sm" variant="ghost">
                     <Link href={actions.historyHref}>History</Link>
                   </Button>
                 </div>
               ) : null}
 
-              <div className="mt-8 grid gap-4 md:grid-cols-4">
+              <div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
                 {[
                   { label: "Created", value: createdAt, icon: Activity },
                   {
                     label: "Keyword coverage",
-                    value:
-                      scoreSummary ? `${scoreSummary.keywordCoverage}%` : status === "FAILED" ? "Unavailable" : "Pending",
+                    value: scoreSummary ? `${scoreSummary.keywordCoverage}%` : status === "FAILED" ? "Unavailable" : "Pending",
                     icon: Target
                   },
                   {
                     label: "Must-have coverage",
-                    value:
-                      scoreSummary ? `${scoreSummary.mustHaveCoverage}%` : status === "FAILED" ? "Unavailable" : "Pending",
+                    value: scoreSummary ? `${scoreSummary.mustHaveCoverage}%` : status === "FAILED" ? "Unavailable" : "Pending",
                     icon: CheckCircle2
                   },
                   {
@@ -216,26 +239,24 @@ export function AnalysisDashboard({
                   const Icon = item.icon;
 
                   return (
-                    <div key={item.label} className="rounded-2xl border border-white/8 bg-white/4 p-4">
+                    <div key={item.label} className="rounded-2xl border border-[var(--border-soft)] bg-[var(--surface-2)] p-4">
                       <div className="flex items-center gap-2 text-[var(--muted-foreground)]">
                         <Icon className="size-4" />
                         <p className="text-xs uppercase tracking-[0.18em]">{item.label}</p>
                       </div>
-                      <p className="mt-3 text-lg font-semibold text-white">{item.value}</p>
+                      <p className="mt-3 text-lg font-semibold text-[var(--foreground)]">{item.value}</p>
                     </div>
                   );
                 })}
               </div>
 
               {statusMessage ? (
-                <div className="mt-6 rounded-[24px] border border-white/10 bg-[rgba(255,255,255,0.04)] p-5">
+                <div className="mt-6 rounded-[24px] border border-[var(--border-soft)] bg-[var(--surface-2)] p-5">
                   <div className="flex items-start gap-3">
                     <CircleAlert className="mt-0.5 size-5 text-[var(--color-brand-300)]" />
                     <div>
-                      <p className="text-base font-semibold text-white">{statusMessage.title}</p>
-                      <p className="mt-2 text-sm leading-7 text-[var(--muted-foreground)]">
-                        {statusMessage.description}
-                      </p>
+                      <p className="text-base font-semibold text-[var(--foreground)]">{statusMessage.title}</p>
+                      <p className="mt-2 text-sm leading-7 text-[var(--muted-foreground)]">{statusMessage.description}</p>
                     </div>
                   </div>
                 </div>
@@ -243,38 +264,74 @@ export function AnalysisDashboard({
             </div>
           </Card>
 
-          <Card className="min-w-0">
-            <p className="text-sm font-semibold uppercase tracking-[0.24em] text-[var(--color-brand-300)]">
-              Score breakdown
-            </p>
-            <h2 className="mt-4 text-2xl font-semibold text-white">Weighted ATS breakdown</h2>
-            <p className="mt-3 text-sm leading-7 text-[var(--muted-foreground)]">
-              Your score combines keyword coverage, must-have skills, section completeness, relevance, structure, and
-              overall alignment with the role.
-            </p>
-            <div className="mt-6">
-              {scoreBreakdown.length > 0 ? (
-                <ScoreBreakdownChart data={scoreBreakdown} />
-              ) : (
-                <div className="flex min-h-[260px] items-center justify-center rounded-[24px] border border-dashed border-white/10 bg-white/4 px-6 text-center text-sm leading-7 text-[var(--muted-foreground)]">
-                  The score breakdown appears once resume text extraction and job-description scoring complete.
+          <div className="grid gap-6">
+            <Card className="min-w-0">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <p className="text-sm font-semibold uppercase tracking-[0.24em] text-[var(--color-brand-300)]">
+                    Score breakdown
+                  </p>
+                  <h2 className="mt-4 text-2xl font-semibold text-[var(--foreground)]">What is driving the score</h2>
+                  <p className="mt-3 text-sm leading-7 text-[var(--muted-foreground)]">
+                    Keyword overlap, must-have skills, structure, and role alignment all contribute to the total.
+                  </p>
                 </div>
-              )}
-            </div>
-          </Card>
+                <Gauge className="mt-1 hidden size-5 text-[var(--color-brand-300)] sm:block" />
+              </div>
+              <div className="mt-6">
+                {scoreBreakdown.length > 0 ? (
+                  <ScoreBreakdownChart data={scoreBreakdown} />
+                ) : (
+                  <div className="flex min-h-[260px] items-center justify-center rounded-[24px] border border-dashed border-[var(--border-soft)] bg-[var(--surface-2)] px-6 text-center text-sm leading-7 text-[var(--muted-foreground)]">
+                    The score breakdown appears once resume text extraction and job-description scoring complete.
+                  </div>
+                )}
+              </div>
+            </Card>
+
+            <Card>
+              <h2 className="text-2xl font-semibold text-[var(--foreground)]">Resume quality signals</h2>
+              <div className="mt-5 grid gap-4 sm:grid-cols-2">
+                {[
+                  {
+                    label: "Readability",
+                    value: scoreSummary ? `${scoreSummary.readabilityScore}/100` : "--"
+                  },
+                  {
+                    label: "Bullet quality",
+                    value: scoreSummary ? `${scoreSummary.bulletQualityScore}/100` : "--"
+                  },
+                  {
+                    label: "Estimated experience",
+                    value:
+                      scoreSummary?.estimatedYearsExperience !== null && scoreSummary?.estimatedYearsExperience !== undefined
+                        ? `${scoreSummary.estimatedYearsExperience}+ years`
+                        : "Not detected"
+                  },
+                  {
+                    label: "Required experience",
+                    value:
+                      roleMeta?.requiredYearsExperience !== null && roleMeta?.requiredYearsExperience !== undefined
+                        ? `${roleMeta.requiredYearsExperience}+ years`
+                        : "Not specified"
+                  }
+                ].map((item) => (
+                  <div key={item.label} className="rounded-2xl border border-[var(--border-soft)] bg-[var(--surface-2)] p-4">
+                    <p className="text-xs uppercase tracking-[0.18em] text-[var(--muted-foreground)]">{item.label}</p>
+                    <p className="mt-3 text-2xl font-semibold text-[var(--foreground)]">{item.value}</p>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          </div>
         </div>
 
-        <div className="mt-6 grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
+        <div className="grid gap-6 xl:grid-cols-[0.92fr_1.08fr]">
           <div className="space-y-6">
             <Card>
-              <h2 className="text-2xl font-semibold text-white">Keyword signals</h2>
+              <h2 className="text-2xl font-semibold text-[var(--foreground)]">Keyword signals</h2>
               <div className="mt-5 space-y-5">
-                <KeywordGroup
-                  title="Matched"
-                  emptyMessage="No matched keywords yet."
-                  items={matchedKeywords}
-                  tone="success"
-                />
+                <KeywordGroup title="Matched" emptyMessage="No matched keywords yet." items={matchedKeywords} tone="success" />
                 <KeywordGroup
                   title="Partial"
                   emptyMessage="No partial keyword matches."
@@ -282,31 +339,26 @@ export function AnalysisDashboard({
                   tone="warning"
                   limit={10}
                 />
-                <KeywordGroup
-                  title="Missing"
-                  emptyMessage="No missing keywords."
-                  items={missingKeywords}
-                  tone="danger"
-                />
+                <KeywordGroup title="Missing" emptyMessage="No missing keywords." items={missingKeywords} tone="danger" />
               </div>
             </Card>
 
             <Card>
-              <h2 className="text-2xl font-semibold text-white">Job description insights</h2>
+              <h2 className="text-2xl font-semibold text-[var(--foreground)]">Job description insights</h2>
               {roleMeta ? (
                 <div className="mt-5 space-y-5">
                   <div className="grid gap-4 sm:grid-cols-3">
-                    <div className="rounded-2xl border border-white/8 bg-white/4 p-4">
+                    <div className="rounded-2xl border border-[var(--border-soft)] bg-[var(--surface-2)] p-4">
                       <p className="text-xs uppercase tracking-[0.18em] text-[var(--muted-foreground)]">Role</p>
-                      <p className="mt-2 text-base font-semibold text-white">{roleMeta.title ?? "Not detected"}</p>
+                      <p className="mt-2 text-base font-semibold text-[var(--foreground)]">{roleMeta.title ?? "Not detected"}</p>
                     </div>
-                    <div className="rounded-2xl border border-white/8 bg-white/4 p-4">
+                    <div className="rounded-2xl border border-[var(--border-soft)] bg-[var(--surface-2)] p-4">
                       <p className="text-xs uppercase tracking-[0.18em] text-[var(--muted-foreground)]">Seniority</p>
-                      <p className="mt-2 text-base font-semibold text-white">{roleMeta.seniority ?? "Not detected"}</p>
+                      <p className="mt-2 text-base font-semibold text-[var(--foreground)]">{roleMeta.seniority ?? "Not detected"}</p>
                     </div>
-                    <div className="rounded-2xl border border-white/8 bg-white/4 p-4">
+                    <div className="rounded-2xl border border-[var(--border-soft)] bg-[var(--surface-2)] p-4">
                       <p className="text-xs uppercase tracking-[0.18em] text-[var(--muted-foreground)]">Keywords</p>
-                      <p className="mt-2 text-base font-semibold text-white">{roleMeta.extractedKeywordCount}</p>
+                      <p className="mt-2 text-base font-semibold text-[var(--foreground)]">{roleMeta.extractedKeywordCount}</p>
                     </div>
                   </div>
 
@@ -324,10 +376,10 @@ export function AnalysisDashboard({
                     limit={14}
                   />
 
-                  <div className="rounded-[24px] border border-white/8 bg-white/4 p-5">
-                    <p className="text-xs uppercase tracking-[0.18em] text-[var(--muted-foreground)]">Raw job description</p>
-                    <div className="mt-3 max-h-[360px] overflow-y-auto rounded-2xl bg-[rgba(255,255,255,0.02)] p-4">
-                      <p className="whitespace-pre-wrap break-words text-sm leading-7 text-white/82">
+                  <div className="rounded-[24px] border border-[var(--border-soft)] bg-[var(--surface-2)] p-5">
+                    <p className="text-xs uppercase tracking-[0.18em] text-[var(--muted-foreground)]">Role text used for scoring</p>
+                    <div className="mt-3 max-h-[320px] overflow-y-auto rounded-2xl bg-[var(--surface-1)] p-4">
+                      <p className="whitespace-pre-wrap break-words text-sm leading-7 text-[var(--foreground)]">
                         {jobDescriptionRawText ?? "No job description was provided for this session."}
                       </p>
                     </div>
@@ -341,23 +393,21 @@ export function AnalysisDashboard({
             </Card>
 
             <Card>
-              <h2 className="text-2xl font-semibold text-white">Improvement suggestions</h2>
+              <h2 className="text-2xl font-semibold text-[var(--foreground)]">Improvement suggestions</h2>
               {suggestions.length > 0 ? (
                 <div className="mt-5 space-y-3">
                   {suggestions.map((suggestion) => (
-                    <div key={suggestion.id} className="rounded-2xl border border-white/8 bg-white/4 p-4">
+                    <div key={suggestion.id} className="rounded-2xl border border-[var(--border-soft)] bg-[var(--surface-2)] p-4">
                       <div className="flex items-center justify-between gap-3">
                         <div className="flex items-center gap-2">
                           <Sparkles className="size-4 text-[var(--color-brand-300)]" />
-                          <p className="text-base font-semibold text-white">{suggestion.title}</p>
+                          <p className="text-base font-semibold text-[var(--foreground)]">{suggestion.title}</p>
                         </div>
-                        <span className="rounded-full border border-white/10 bg-white/6 px-3 py-1 text-xs uppercase tracking-[0.14em] text-[var(--muted-foreground)]">
+                        <span className="rounded-full border border-[var(--border-soft)] bg-[var(--surface-3)] px-3 py-1 text-xs uppercase tracking-[0.14em] text-[var(--muted-foreground)]">
                           {suggestion.priority}
                         </span>
                       </div>
-                      <p className="mt-3 text-sm leading-7 text-[var(--muted-foreground)]">
-                        {suggestion.description}
-                      </p>
+                      <p className="mt-3 text-sm leading-7 text-[var(--muted-foreground)]">{suggestion.description}</p>
                     </div>
                   ))}
                 </div>
@@ -371,23 +421,23 @@ export function AnalysisDashboard({
 
           <div className="space-y-6">
             <Card>
-              <h2 className="text-2xl font-semibold text-white">Resume intake summary</h2>
+              <h2 className="text-2xl font-semibold text-[var(--foreground)]">Resume intake summary</h2>
               {fileMeta ? (
                 <div className="mt-5 grid gap-4 sm:grid-cols-3">
-                  <div className="rounded-2xl border border-white/8 bg-white/4 p-4">
+                  <div className="rounded-2xl border border-[var(--border-soft)] bg-[var(--surface-2)] p-4">
                     <div className="flex items-center gap-2 text-[var(--muted-foreground)]">
                       <FileText className="size-4" />
                       <p className="text-xs uppercase tracking-[0.18em]">Filename</p>
                     </div>
-                    <p className="mt-3 break-all text-sm font-medium text-white">{fileMeta.originalName}</p>
+                    <p className="mt-3 break-all text-sm font-medium text-[var(--foreground)]">{fileMeta.originalName}</p>
                   </div>
-                  <div className="rounded-2xl border border-white/8 bg-white/4 p-4">
+                  <div className="rounded-2xl border border-[var(--border-soft)] bg-[var(--surface-2)] p-4">
                     <p className="text-xs uppercase tracking-[0.18em] text-[var(--muted-foreground)]">File type</p>
-                    <p className="mt-3 break-all text-sm font-medium text-white">{fileMeta.mimeType}</p>
+                    <p className="mt-3 break-all text-sm font-medium text-[var(--foreground)]">{fileMeta.mimeType}</p>
                   </div>
-                  <div className="rounded-2xl border border-white/8 bg-white/4 p-4">
+                  <div className="rounded-2xl border border-[var(--border-soft)] bg-[var(--surface-2)] p-4">
                     <p className="text-xs uppercase tracking-[0.18em] text-[var(--muted-foreground)]">File size</p>
-                    <p className="mt-3 text-sm font-medium text-white">{fileMeta.sizeLabel}</p>
+                    <p className="mt-3 text-sm font-medium text-[var(--foreground)]">{fileMeta.sizeLabel}</p>
                   </div>
                 </div>
               ) : (
@@ -398,53 +448,51 @@ export function AnalysisDashboard({
             </Card>
 
             <Card>
-              <h2 className="text-2xl font-semibold text-white">Parsed resume insights</h2>
+              <h2 className="text-2xl font-semibold text-[var(--foreground)]">Parsed resume insights</h2>
               {parsedResume ? (
                 <div className="mt-5 space-y-5">
                   <div className="grid gap-4 sm:grid-cols-2">
-                    <div className="rounded-2xl border border-white/8 bg-white/4 p-4">
+                    <div className="rounded-2xl border border-[var(--border-soft)] bg-[var(--surface-2)] p-4">
                       <p className="text-xs uppercase tracking-[0.18em] text-[var(--muted-foreground)]">Word count</p>
-                      <p className="mt-2 text-2xl font-semibold text-white">{parsedResume.wordCount}</p>
+                      <p className="mt-2 text-2xl font-semibold text-[var(--foreground)]">{parsedResume.wordCount}</p>
                     </div>
-                    <div className="rounded-2xl border border-white/8 bg-white/4 p-4">
+                    <div className="rounded-2xl border border-[var(--border-soft)] bg-[var(--surface-2)] p-4">
                       <p className="text-xs uppercase tracking-[0.18em] text-[var(--muted-foreground)]">Structure score</p>
-                      <p className="mt-2 text-2xl font-semibold text-white">{parsedResume.structureScore}/100</p>
+                      <p className="mt-2 text-2xl font-semibold text-[var(--foreground)]">{parsedResume.structureScore}/100</p>
                     </div>
                   </div>
 
                   <div className="grid gap-3 sm:grid-cols-2">
                     {parsedResume.sections.map((item) => (
-                      <div key={item.label} className="rounded-2xl border border-white/8 bg-white/4 px-4 py-3">
+                      <div key={item.label} className="rounded-2xl border border-[var(--border-soft)] bg-[var(--surface-2)] px-4 py-3">
                         <div className="flex items-center justify-between gap-3">
                           <p className="text-xs uppercase tracking-[0.18em] text-[var(--muted-foreground)]">{item.label}</p>
                           {item.value ? (
                             <CheckCircle2 className="size-4 text-emerald-300" />
                           ) : (
-                            <CircleAlert className="size-4 text-amber-200" />
+                            <CircleAlert className="size-4 text-amber-300" />
                           )}
                         </div>
-                        <p className="mt-2 text-sm font-medium text-white">{item.value ? "Detected" : "Missing"}</p>
+                        <p className="mt-2 text-sm font-medium text-[var(--foreground)]">{item.value ? "Detected" : "Missing"}</p>
                       </div>
                     ))}
                   </div>
 
-                  <div className="rounded-[24px] border border-white/8 bg-white/4 p-5">
+                  <div className="rounded-[24px] border border-[var(--border-soft)] bg-[var(--surface-2)] p-5">
                     <p className="text-xs uppercase tracking-[0.18em] text-[var(--muted-foreground)]">Extracted summary</p>
-                    <p className="mt-3 text-sm leading-7 text-white/82">
+                    <p className="mt-3 text-sm leading-7 text-[var(--foreground)]">
                       {parsedResume.summary ?? "No summary section was detected, so the parser could not extract one."}
                     </p>
                   </div>
 
-                  <div className="rounded-[24px] border border-white/8 bg-white/4 p-5">
+                  <div className="rounded-[24px] border border-[var(--border-soft)] bg-[var(--surface-2)] p-5">
                     <p className="text-xs uppercase tracking-[0.18em] text-[var(--muted-foreground)]">Normalized text preview</p>
-                    <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-white/82">
-                      {parsedResume.normalizedPreview}
-                    </p>
+                    <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-[var(--foreground)]">{parsedResume.normalizedPreview}</p>
                   </div>
                 </div>
               ) : (
-                <div className="mt-5 rounded-[24px] border border-white/8 bg-white/4 p-5">
-                  <p className="text-base font-semibold text-white">
+                <div className="mt-5 rounded-[24px] border border-[var(--border-soft)] bg-[var(--surface-2)] p-5">
+                  <p className="text-base font-semibold text-[var(--foreground)]">
                     {status === "FAILED" ? "We could not extract text from this resume." : "Parsed resume text is not available yet."}
                   </p>
                   <p className="mt-3 text-sm leading-7 text-[var(--muted-foreground)]">
@@ -458,10 +506,10 @@ export function AnalysisDashboard({
 
             {scoreSummary?.bonusSignals.length ? (
               <Card>
-                <h2 className="text-2xl font-semibold text-white">Bonus signals</h2>
+                <h2 className="text-2xl font-semibold text-[var(--foreground)]">Bonus signals</h2>
                 <div className="mt-5 space-y-3">
                   {scoreSummary.bonusSignals.map((signal) => (
-                    <div key={signal} className="rounded-2xl border border-white/8 bg-white/4 px-4 py-3">
+                    <div key={signal} className="rounded-2xl border border-[var(--border-soft)] bg-[var(--surface-2)] px-4 py-3">
                       <p className="text-sm leading-7 text-[var(--muted-foreground)]">{signal}</p>
                     </div>
                   ))}

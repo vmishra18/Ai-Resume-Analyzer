@@ -3,6 +3,8 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ScoreBreakdownChart } from "@/features/analysis/components/score-breakdown-chart";
+import { requireCurrentUser } from "@/features/auth/server/session";
+import { ComparisonPicker } from "@/features/history/components/comparison-picker";
 import { HistoryEmptyState } from "@/features/history/components/history-empty-state";
 import { HistorySummary } from "@/features/history/components/history-summary";
 import { SessionHistoryCard } from "@/features/history/components/session-history-card";
@@ -12,7 +14,11 @@ import { db } from "@/lib/db";
 export const dynamic = "force-dynamic";
 
 export default async function AnalysesPage() {
+  const user = await requireCurrentUser();
   const sessions = await db.analysisSession.findMany({
+    where: {
+      userId: user.id
+    },
     include: {
       uploadedFile: true,
       jobDescription: true
@@ -43,7 +49,7 @@ export default async function AnalysesPage() {
             <p className="text-sm font-semibold uppercase tracking-[0.24em] text-[var(--color-brand-300)]">
               Analysis history
             </p>
-            <h1 className="mt-4 font-heading text-4xl text-white sm:text-5xl">
+            <h1 className="mt-4 font-heading text-4xl text-[var(--foreground)] sm:text-5xl">
               Revisit past analyses and compare how your resume is improving.
             </h1>
             <p className="mt-5 max-w-3xl text-base leading-8 text-[var(--muted-foreground)]">
@@ -66,7 +72,7 @@ export default async function AnalysesPage() {
             <p className="text-sm font-semibold uppercase tracking-[0.24em] text-[var(--color-brand-300)]">
               Recent trend
             </p>
-            <h2 className="mt-4 text-2xl font-semibold text-white">Latest score movement</h2>
+            <h2 className="mt-4 text-2xl font-semibold text-[var(--foreground)]">Latest score movement</h2>
             <p className="mt-3 text-sm leading-7 text-[var(--muted-foreground)]">
               Compare recent completed analyses and see whether your latest resume changes are improving the match.
             </p>
@@ -85,13 +91,14 @@ export default async function AnalysesPage() {
             <p className="text-sm font-semibold uppercase tracking-[0.24em] text-[var(--color-brand-300)]">
               Useful at a glance
             </p>
-            <h2 className="mt-4 text-2xl font-semibold text-white">What you can do from history</h2>
+            <h2 className="mt-4 text-2xl font-semibold text-[var(--foreground)]">What you can do from history</h2>
             <div className="mt-5 space-y-3">
               {[
                 "See which resume version is scoring best for your target roles.",
                 "Check whether recent edits improved the overall match.",
                 "Spot failed uploads that may need a cleaner source file.",
-                "Open any saved analysis without starting from scratch."
+                "Open any saved analysis without starting from scratch.",
+                "Pick two saved runs and compare them side by side."
               ].map((item) => (
                 <div key={item} className="rounded-2xl border border-white/8 bg-white/4 px-4 py-3">
                   <p className="text-sm leading-7 text-[var(--muted-foreground)]">{item}</p>
@@ -99,6 +106,16 @@ export default async function AnalysesPage() {
               ))}
             </div>
           </Card>
+        </div>
+
+        <div className="mt-6">
+          <ComparisonPicker
+            sessions={sessions.map((session) => ({
+              id: session.id,
+              title: session.title,
+              overallScore: session.overallScore
+            }))}
+          />
         </div>
 
         <div className="mt-6 space-y-5">

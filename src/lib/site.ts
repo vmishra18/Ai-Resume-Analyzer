@@ -1,12 +1,12 @@
 export const siteConfig = {
-  name: "ATS Resume Analyzer",
+  name: "Resume Signal",
   description:
-    "Compare your resume to a job description and get clear feedback on match strength, missing skills, and next steps.",
-  tagline: "Stronger resume feedback for every application.",
+    "Upload a resume, compare it to a job description, and get clear feedback on fit, missing skills, readability, and next steps.",
+  tagline: "Sharper resume feedback for every application.",
   nav: [
     { href: "#features", label: "Features" },
-    { href: "#how-it-works", label: "How It Works" },
+    { href: "#scenarios", label: "Scenarios" },
     { href: "#results", label: "Results" },
-    { href: "#use-cases", label: "Use Cases" }
+    { href: "#compare", label: "Compare" }
   ]
 } as const;

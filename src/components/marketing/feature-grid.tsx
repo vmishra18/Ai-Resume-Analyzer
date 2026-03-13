@@ -1,44 +1,37 @@
-import {
-  Blocks,
-  DatabaseZap,
-  FileCode2,
-  LayoutDashboard,
-  ScanSearch,
-  Sparkles
-} from "lucide-react";
+import { LayoutDashboard, ScanSearch, Shield, Sparkles, Target, Wand2 } from "lucide-react";
 
 import { Card } from "@/components/ui/card";
 
 const features = [
   {
-    icon: FileCode2,
-    title: "Quick resume upload",
-    description: "Upload a PDF or DOCX resume and start a new analysis in a few clicks."
-  },
-  {
     icon: ScanSearch,
-    title: "Job description matching",
-    description: "Compare your resume against the role to see which skills, tools, and phrases already align."
+    title: "Role-aware analysis",
+    description: "Match a resume against frontend, backend, product, data, design, QA, DevOps, and support-style job descriptions."
   },
   {
-    icon: LayoutDashboard,
-    title: "Clear results dashboard",
-    description: "Review your score, matched keywords, missing skills, section checks, and next-step suggestions."
+    icon: Target,
+    title: "Transparent ATS score",
+    description: "See exactly how the score is built from stack overlap, must-have skills, section quality, alignment, and evidence strength."
   },
   {
-    icon: DatabaseZap,
-    title: "Saved history",
-    description: "Keep past analyses so you can revisit results and compare updated resume versions over time."
-  },
-  {
-    icon: Blocks,
-    title: "Section checks",
-    description: "See whether your resume includes the sections hiring teams usually expect, such as summary, skills, and experience."
+    icon: Wand2,
+    title: "Smarter keyword aliasing",
+    description: "Recognise variants like JS and JavaScript, RTK and Redux Toolkit, NodeJS and Node.js, or AWS Lambda and AWS."
   },
   {
     icon: Sparkles,
-    title: "Actionable suggestions",
-    description: "Turn the score into concrete improvements you can make before sending your application."
+    title: "Readability and bullet checks",
+    description: "Review whether your summary is concise, bullets are action-led, and experience sections are easy to scan."
+  },
+  {
+    icon: LayoutDashboard,
+    title: "Saved private history",
+    description: "Keep each run in a private workspace so you can revisit strong versions and compare what changed."
+  },
+  {
+    icon: Shield,
+    title: "Cleaner job description parsing",
+    description: "Filter company fluff, benefits copy, and noisy phrases so the analysis focuses on actual role requirements."
   }
 ];
 
@@ -47,15 +40,13 @@ export function FeatureGrid() {
     <section id="features" className="px-6 py-20 lg:px-8">
       <div className="mx-auto max-w-7xl">
         <div className="max-w-3xl">
-          <p className="text-sm font-semibold uppercase tracking-[0.24em] text-[var(--color-brand-300)]">
-            Features
-          </p>
-          <h2 className="mt-4 font-heading text-4xl text-white sm:text-5xl">
-            Everything you need to tailor a stronger resume.
+          <p className="text-sm font-semibold uppercase tracking-[0.24em] text-[var(--color-brand-300)]">Features</p>
+          <h2 className="mt-4 font-heading text-4xl text-[var(--foreground)] sm:text-5xl">
+            A resume tool that stays useful after the first score.
           </h2>
           <p className="mt-5 max-w-2xl text-lg leading-8 text-[var(--muted-foreground)]">
-            From the first upload to the final score, every screen is designed to help you understand what is working
-            and what needs attention.
+            The workflow is built around an actual application habit: upload, compare, revise, save, and come back with
+            a better version.
           </p>
         </div>
 
@@ -65,13 +56,11 @@ export function FeatureGrid() {
 
             return (
               <Card key={feature.title} className="min-h-[220px]">
-                <div className="inline-flex rounded-2xl border border-white/10 bg-white/6 p-3">
+                <div className="inline-flex rounded-2xl border border-[var(--border-soft)] bg-[var(--surface-2)] p-3">
                   <Icon className="size-6 text-[var(--color-brand-300)]" />
                 </div>
-                <h3 className="mt-5 text-xl font-semibold text-white">{feature.title}</h3>
-                <p className="mt-3 text-sm leading-7 text-[var(--muted-foreground)]">
-                  {feature.description}
-                </p>
+                <h3 className="mt-5 text-xl font-semibold text-[var(--foreground)]">{feature.title}</h3>
+                <p className="mt-3 text-sm leading-7 text-[var(--muted-foreground)]">{feature.description}</p>
               </Card>
             );
           })}

@@ -12,8 +12,8 @@ const buttonVariants = cva(
         default:
           "bg-[var(--color-brand-500)] text-white shadow-[0_18px_45px_rgba(245,106,72,0.25)] hover:bg-[var(--color-brand-600)]",
         secondary:
-          "border border-white/15 bg-white/6 text-[var(--foreground)] hover:bg-white/12",
-        ghost: "text-[var(--foreground)] hover:bg-white/10"
+          "border border-[var(--border-soft)] bg-[var(--surface-2)] text-[var(--foreground)] hover:bg-[var(--surface-3)]",
+        ghost: "text-[var(--foreground)] hover:bg-[var(--surface-2)]"
       },
       size: {
         default: "h-11 px-5",

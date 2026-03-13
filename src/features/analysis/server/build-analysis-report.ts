@@ -30,7 +30,7 @@ function renderKeywordList(title: string, items: string[]) {
 export function buildAnalysisReportMarkdown(data: AnalysisReportData) {
   const safeTitle = normalizeKeyword(data.sessionTitle).replace(/ /g, "-") || "analysis-report";
 
-  const markdown = `# ATS Resume Analyzer Report
+  const markdown = `# Resume Signal Report
 
 ## Session overview
 

@@ -10,7 +10,7 @@ import type {
   SuggestionType as PrismaSuggestionType
 } from "@prisma/client";
 import { analyzeResumeAgainstJob } from "@/features/analysis/server/analysis-engine";
-import { processJobDescription } from "@/features/job-description/server/process-job-description";
+import { getProcessedJobDescription } from "@/features/job-description/server/get-processed-job-description";
 import { parseResumeFile } from "@/features/resume-parser/server/parse-resume-file";
 import type { CreateAnalysisSessionResponse } from "@/features/upload/lib/types";
 import { buildAnalysisTitle, getFileExtension, normalizeWhitespace, sanitizeFileName } from "@/features/upload/lib/helpers";
@@ -50,19 +50,21 @@ function toPrismaSuggestionType(suggestionType: string) {
 }
 
 export async function createAnalysisSessionFromUpload(
-  input: UploadRequestInput
+  input: UploadRequestInput,
+  userId: string
 ): Promise<CreateAnalysisSessionResponse> {
   const { resume, jobDescription } = input;
   const normalizedJobDescription = normalizeWhitespace(jobDescription ?? "");
   const savedFile = await persistUploadedResume(resume);
   const sessionTitle = buildAnalysisTitle(resume.name);
   const processedJobDescription = normalizedJobDescription
-    ? processJobDescription(jobDescription ?? "")
+    ? await getProcessedJobDescription(jobDescription ?? "")
     : null;
 
   try {
     const session = await db.analysisSession.create({
       data: {
+        userId,
         title: sessionTitle,
         status: "PROCESSING",
         uploadedFile: {
@@ -83,6 +85,7 @@ export async function createAnalysisSessionFromUpload(
                 title: processedJobDescription?.title,
                 company: processedJobDescription?.company,
                 seniority: processedJobDescription?.seniority,
+                requiredYearsExperience: processedJobDescription?.requiredYearsExperience,
                 extractedKeywords:
                   (processedJobDescription?.extractedKeywords ?? []) as unknown as Prisma.InputJsonValue,
                 mustHaveKeywords:

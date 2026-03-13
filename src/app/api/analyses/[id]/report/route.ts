@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { buildAnalysisReportMarkdown } from "@/features/analysis/server/build-analysis-report";
+import { getCurrentUser } from "@/features/auth/server/session";
 import { buildAnalysisDashboardData, getAnalysisSessionOrNull } from "@/features/analysis/server/get-analysis-session";
 
 export const runtime = "nodejs";
@@ -13,7 +14,18 @@ interface ReportRouteProps {
 
 export async function GET(_request: Request, { params }: ReportRouteProps) {
   const { id } = await params;
-  const session = await getAnalysisSessionOrNull(id);
+  const user = await getCurrentUser();
+
+  if (!user) {
+    return NextResponse.json(
+      {
+        message: "Sign in to download private reports."
+      },
+      { status: 401 }
+    );
+  }
+
+  const session = await getAnalysisSessionOrNull(id, user.id);
 
   if (!session) {
     return NextResponse.json(

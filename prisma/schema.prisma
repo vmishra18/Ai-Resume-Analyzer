@@ -9,17 +9,57 @@ datasource db {
 
 model AnalysisSession {
   id                  String           @id @default(cuid())
+  userId              String?
   title               String
   status              AnalysisStatus   @default(PENDING)
   overallScore        Int?
   createdAt           DateTime         @default(now())
   updatedAt           DateTime         @updatedAt
+  user                User?            @relation(fields: [userId], references: [id], onDelete: SetNull)
   uploadedFile        UploadedFile?
   parsedResume        ParsedResume?
   jobDescription      JobDescription?
   scoringSummary      ScoringSummary?
   keywordResults      KeywordResult[]
   suggestions         Suggestion[]
+}
+
+model User {
+  id            String            @id @default(cuid())
+  email         String            @unique
+  passwordHash  String
+  name          String
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+  analyses      AnalysisSession[]
+  sessions      AuthSession[]
+}
+
+model AuthSession {
+  id         String    @id @default(cuid())
+  token      String    @unique
+  userId     String
+  expiresAt  DateTime
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model JobDescriptionCache {
+  id                   String    @id @default(cuid())
+  hash                 String    @unique
+  rawText              String
+  normalizedText       String
+  title                String?
+  company              String?
+  seniority            String?
+  requiredYearsExperience Int?
+  extractedKeywords    Json
+  mustHaveKeywords     Json
+  niceToHaveKeywords   Json
+  filteredOutPhrases   Json
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
 }
 
 model UploadedFile {
@@ -59,6 +99,7 @@ model JobDescription {
   title                String?
   company              String?
   seniority            String?
+  requiredYearsExperience Int?
   extractedKeywords    Json
   mustHaveKeywords     Json
   niceToHaveKeywords   Json

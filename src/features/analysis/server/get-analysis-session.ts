@@ -66,9 +66,14 @@ function buildDisplaySessionTitle(session: AnalysisSessionRecord) {
   return "Resume Match";
 }
 
-export async function getAnalysisSessionOrNull(id: string) {
-  return db.analysisSession.findUnique({
-    where: { id },
+export async function getAnalysisSessionOrNull(id: string, userId?: string) {
+  return db.analysisSession.findFirst({
+    where: userId
+      ? {
+          id,
+          userId
+        }
+      : { id },
     include: {
       keywordResults: {
         orderBy: [{ matchType: "asc" }, { occurrences: "desc" }]
@@ -117,14 +122,19 @@ export function buildAnalysisDashboardData(session: AnalysisSessionRecord) {
           matchedKeywords: scoreExplanation.matchedKeywordCount,
           partialKeywords: scoreExplanation.partialKeywordCount,
           totalKeywords: scoreExplanation.totalKeywordCount,
-          bonusSignals: scoreExplanation.bonusSignals
+          bonusSignals: scoreExplanation.bonusSignals,
+          readabilityScore: scoreExplanation.readabilityScore,
+          bulletQualityScore: scoreExplanation.bulletQualityScore,
+          estimatedYearsExperience: scoreExplanation.estimatedYearsExperience,
+          requiredYearsExperience: scoreExplanation.requiredYearsExperience
         }
       : null,
     roleMeta: session.jobDescription
       ? {
           title: session.jobDescription.title,
           seniority: session.jobDescription.seniority,
-          extractedKeywordCount: extractedJobKeywords.length
+          extractedKeywordCount: extractedJobKeywords.length,
+          requiredYearsExperience: session.jobDescription.requiredYearsExperience
         }
       : null,
     fileMeta: session.uploadedFile

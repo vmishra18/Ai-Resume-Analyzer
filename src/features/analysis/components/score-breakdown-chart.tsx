@@ -32,26 +32,26 @@ export function ScoreBreakdownChart({ data }: ScoreBreakdownChartProps) {
     <div className="h-[260px] min-h-[260px] min-w-0 w-full">
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={data} margin={{ top: 10, right: 8, left: -24, bottom: 0 }}>
-          <CartesianGrid stroke="rgba(255,255,255,0.08)" vertical={false} />
+          <CartesianGrid stroke="var(--grid-line)" vertical={false} />
           <XAxis
             dataKey="label"
-            tick={{ fill: "#9ca7bc", fontSize: 12 }}
+            tick={{ fill: "var(--muted-foreground)", fontSize: 12 }}
             tickLine={false}
             axisLine={false}
           />
           <YAxis
-            tick={{ fill: "#9ca7bc", fontSize: 12 }}
+            tick={{ fill: "var(--muted-foreground)", fontSize: 12 }}
             tickLine={false}
             axisLine={false}
             allowDecimals={false}
           />
           <Tooltip
-            cursor={{ fill: "rgba(255,255,255,0.04)" }}
+            cursor={{ fill: "var(--surface-2)" }}
             contentStyle={{
-              background: "rgba(7,16,27,0.94)",
-              border: "1px solid rgba(255,255,255,0.08)",
+              background: "var(--background)",
+              border: "1px solid var(--border-soft)",
               borderRadius: "18px",
-              color: "#f7f8fb"
+              color: "var(--foreground)"
             }}
           />
           <Bar dataKey="value" radius={[12, 12, 6, 6]}>

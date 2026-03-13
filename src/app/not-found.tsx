@@ -11,7 +11,7 @@ export default function NotFound() {
           <p className="text-sm font-semibold uppercase tracking-[0.24em] text-[var(--color-brand-300)]">
             404
           </p>
-          <h1 className="mt-4 font-heading text-5xl text-white">We couldn&apos;t find that page.</h1>
+          <h1 className="mt-4 font-heading text-5xl text-[var(--foreground)]">We couldn&apos;t find that page.</h1>
           <p className="mx-auto mt-5 max-w-2xl text-base leading-8 text-[var(--muted-foreground)]">
             The link may be out of date, the analysis may have been removed, or the page may never have existed.
           </p>

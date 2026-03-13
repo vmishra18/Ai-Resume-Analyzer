@@ -14,6 +14,7 @@ export interface ProcessedJobDescription {
   title: string | null;
   company: string | null;
   seniority: string | null;
+  requiredYearsExperience: number | null;
   extractedKeywords: JobDescriptionKeyword[];
   mustHaveKeywords: JobDescriptionKeyword[];
   niceToHaveKeywords: JobDescriptionKeyword[];

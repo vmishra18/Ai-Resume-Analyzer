@@ -24,7 +24,7 @@ function getStatusTone(status: string) {
     case "PROCESSING":
       return "border-sky-400/20 bg-sky-400/10 text-sky-100";
     default:
-      return "border-white/10 bg-white/6 text-white/84";
+      return "border-[var(--border-soft)] bg-[var(--surface-2)] text-[var(--foreground)]";
   }
 }
 
@@ -48,7 +48,7 @@ export function SessionHistoryCard({
           <p className="text-sm text-[var(--muted-foreground)]">{createdAt}</p>
         </div>
 
-        <h2 className="mt-4 text-2xl font-semibold text-white">{title}</h2>
+        <h2 className="mt-4 text-2xl font-semibold text-[var(--foreground)]">{title}</h2>
 
         <div className="mt-5 grid gap-3 sm:grid-cols-3">
           <div className="rounded-2xl border border-white/8 bg-white/4 p-4">
@@ -56,21 +56,21 @@ export function SessionHistoryCard({
               <FileText className="size-4" />
               <p className="text-xs uppercase tracking-[0.18em]">Resume</p>
             </div>
-            <p className="mt-3 text-sm font-medium text-white">{fileName ?? "Unknown file"}</p>
+            <p className="mt-3 text-sm font-medium text-[var(--foreground)]">{fileName ?? "Unknown file"}</p>
           </div>
           <div className="rounded-2xl border border-white/8 bg-white/4 p-4">
             <div className="flex items-center gap-2 text-[var(--muted-foreground)]">
               <BriefcaseBusiness className="size-4" />
               <p className="text-xs uppercase tracking-[0.18em]">Target role</p>
             </div>
-            <p className="mt-3 text-sm font-medium text-white">{roleTitle ?? "Not detected"}</p>
+            <p className="mt-3 text-sm font-medium text-[var(--foreground)]">{roleTitle ?? "Not detected"}</p>
           </div>
           <div className="rounded-2xl border border-white/8 bg-white/4 p-4">
             <div className="flex items-center gap-2 text-[var(--muted-foreground)]">
               <Target className="size-4" />
               <p className="text-xs uppercase tracking-[0.18em]">JD keywords</p>
             </div>
-            <p className="mt-3 text-sm font-medium text-white">{keywordCount}</p>
+            <p className="mt-3 text-sm font-medium text-[var(--foreground)]">{keywordCount}</p>
           </div>
         </div>
       </div>
@@ -81,18 +81,21 @@ export function SessionHistoryCard({
             <Clock3 className="size-4" />
             <p className="text-xs uppercase tracking-[0.18em]">Match score</p>
           </div>
-          <p className="mt-4 font-heading text-6xl text-white">{overallScore ?? "--"}</p>
+          <p className="mt-4 font-heading text-6xl text-[var(--foreground)]">{overallScore ?? "--"}</p>
           <p className="mt-2 text-sm text-[var(--muted-foreground)]">
             {overallScore !== null ? "Ready to review" : "Waiting for full analysis"}
           </p>
         </div>
 
-        <div className="mt-6">
+        <div className="mt-6 grid gap-3">
           <Button asChild className="w-full">
             <Link href={`/analyses/${id}`}>
               Open dashboard
               <ArrowRight className="size-4" />
             </Link>
+          </Button>
+          <Button asChild variant="secondary" className="w-full">
+            <Link href={`/compare?left=${id}`}>Compare this version</Link>
           </Button>
         </div>
       </div>

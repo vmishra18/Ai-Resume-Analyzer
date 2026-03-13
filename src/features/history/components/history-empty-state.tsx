@@ -9,7 +9,7 @@ export function HistoryEmptyState() {
       <p className="text-sm font-semibold uppercase tracking-[0.24em] text-[var(--color-brand-300)]">
         No saved analyses yet
       </p>
-      <h1 className="mt-4 font-heading text-4xl text-white">Start with your first resume check.</h1>
+      <h1 className="mt-4 font-heading text-4xl text-[var(--foreground)]">Start with your first resume check.</h1>
       <p className="mx-auto mt-5 max-w-2xl text-base leading-8 text-[var(--muted-foreground)]">
         Once you run an analysis, your results will appear here so you can come back, compare versions, and track your
         progress over time.

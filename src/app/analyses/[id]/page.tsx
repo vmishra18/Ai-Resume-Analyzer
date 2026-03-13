@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import type { Route } from "next";
 
 import { AnalysisDashboard } from "@/features/analysis/components/analysis-dashboard";
+import { requireCurrentUser } from "@/features/auth/server/session";
 import { buildAnalysisDashboardData, getAnalysisSessionOrNull } from "@/features/analysis/server/get-analysis-session";
 
 interface AnalysisDetailPageProps {
@@ -12,8 +13,9 @@ interface AnalysisDetailPageProps {
 
 export default async function AnalysisDetailPage({ params }: AnalysisDetailPageProps) {
   const { id } = await params;
+  const user = await requireCurrentUser();
 
-  const session = await getAnalysisSessionOrNull(id);
+  const session = await getAnalysisSessionOrNull(id, user.id);
 
   if (!session) {
     notFound();

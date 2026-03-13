@@ -13,7 +13,7 @@ const toneStyles = {
   success: "border-emerald-400/20 bg-emerald-400/10 text-emerald-100",
   warning: "border-amber-400/20 bg-amber-400/10 text-amber-100",
   danger: "border-rose-400/20 bg-rose-400/10 text-rose-100",
-  neutral: "border-white/10 bg-white/6 text-white/84"
+  neutral: "border-[var(--border-soft)] bg-[var(--surface-2)] text-[var(--foreground)]"
 } as const;
 
 export function KeywordGroup({

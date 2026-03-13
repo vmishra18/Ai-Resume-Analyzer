@@ -1,11 +1,23 @@
 import { NextResponse } from "next/server";
 
+import { getCurrentUser } from "@/features/auth/server/session";
 import { uploadRequestSchema } from "@/features/upload/lib/schemas";
 import { createAnalysisSessionFromUpload } from "@/features/upload/server/create-analysis-session";
 
 export const runtime = "nodejs";
 
 export async function POST(request: Request) {
+  const user = await getCurrentUser();
+
+  if (!user) {
+    return NextResponse.json(
+      {
+        message: "Sign in to save analyses in your private workspace."
+      },
+      { status: 401 }
+    );
+  }
+
   const formData = await request.formData();
 
   const parsed = uploadRequestSchema.safeParse({
@@ -26,7 +38,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    const response = await createAnalysisSessionFromUpload(parsed.data);
+    const response = await createAnalysisSessionFromUpload(parsed.data, user.id);
 
     return NextResponse.json(response, { status: 201 });
   } catch (error) {

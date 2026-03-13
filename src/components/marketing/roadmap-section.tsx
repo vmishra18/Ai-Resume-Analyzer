@@ -1,62 +1,59 @@
+import Link from "next/link";
+
+import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 
-const useCases = [
+const comparisonReasons = [
   {
-    title: "Tailor one resume for a specific role",
-    description: "Paste a job description and quickly see which skills and phrases are already covered in your resume.",
-    tags: ["Keyword match", "Missing skills", "Section review"]
+    title: "Compare two resume versions",
+    description: "Open two analyses side by side to see which version has the stronger score, better keyword coverage, and cleaner content."
   },
   {
-    title: "Compare multiple resume versions",
-    description: "Save each analysis so you can check whether your latest edits improved the match score.",
-    tags: ["Saved history", "Score trends", "Version tracking"]
+    title: "Keep role-specific history",
+    description: "Save each run privately so you can revisit what worked for one application without losing another."
   },
   {
-    title: "Prepare before you apply",
-    description: "Use the suggestion panel to tighten your summary, highlight relevant experience, and close keyword gaps.",
-    tags: ["Actionable suggestions", "Resume polish", "Application prep"]
+    title: "Reuse repeated job descriptions",
+    description: "When you analyse the same role again, the app reuses cached job-description signals to keep the workflow fast."
   }
 ];
 
 export function RoadmapSection() {
   return (
-    <section id="use-cases" className="px-6 py-20 lg:px-8">
+    <section id="compare" className="px-6 py-20 lg:px-8">
       <div className="mx-auto max-w-7xl">
-        <div className="max-w-3xl">
-          <p className="text-sm font-semibold uppercase tracking-[0.24em] text-[var(--color-brand-300)]">
-            Use cases
-          </p>
-          <h2 className="mt-4 font-heading text-4xl text-white sm:text-5xl">
-            Useful whether you are polishing one application or many.
-          </h2>
-          <p className="mt-5 text-lg leading-8 text-[var(--muted-foreground)]">
-            Keep the process simple: check the role, update your resume, save the result, and come back whenever you
-            want to compare the next version.
-          </p>
-        </div>
+        <Card className="relative overflow-hidden">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(245,106,72,0.14),transparent_32%),radial-gradient(circle_at_bottom_right,rgba(52,211,153,0.12),transparent_28%)]" />
+          <div className="relative grid gap-8 lg:grid-cols-[0.9fr_1.1fr]">
+            <div>
+              <p className="text-sm font-semibold uppercase tracking-[0.24em] text-[var(--color-brand-300)]">Compare</p>
+              <h2 className="mt-4 font-heading text-4xl text-[var(--foreground)] sm:text-5xl">
+                Keep better versions and stop guessing which resume should go out.
+              </h2>
+              <p className="mt-5 max-w-2xl text-lg leading-8 text-[var(--muted-foreground)]">
+                Sign in once, keep your analyses private, and compare two saved reports whenever you want to decide
+                which version deserves the next application.
+              </p>
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+                <Button asChild size="lg">
+                  <Link href="/auth">Create workspace</Link>
+                </Button>
+                <Button asChild variant="secondary" size="lg">
+                  <Link href="/compare">Open compare view</Link>
+                </Button>
+              </div>
+            </div>
 
-        <div className="mt-12 grid gap-5">
-          {useCases.map((useCase) => (
-            <Card key={useCase.title} className="grid gap-6 lg:grid-cols-[240px_1fr]">
-              <div>
-                <h3 className="text-2xl font-semibold text-white">{useCase.title}</h3>
-              </div>
-              <div>
-                <p className="text-sm leading-7 text-[var(--muted-foreground)]">{useCase.description}</p>
-                <div className="mt-4 flex flex-wrap gap-2">
-                  {useCase.tags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="rounded-full border border-white/10 bg-white/6 px-3 py-1 text-xs text-[var(--muted-foreground)]"
-                    >
-                      {tag}
-                    </span>
-                  ))}
+            <div className="grid gap-4">
+              {comparisonReasons.map((item) => (
+                <div key={item.title} className="rounded-2xl border border-[var(--border-soft)] bg-[var(--surface-2)] p-5">
+                  <h3 className="text-xl font-semibold text-[var(--foreground)]">{item.title}</h3>
+                  <p className="mt-3 text-sm leading-7 text-[var(--muted-foreground)]">{item.description}</p>
                 </div>
-              </div>
-            </Card>
-          ))}
-        </div>
+              ))}
+            </div>
+          </div>
+        </Card>
       </div>
     </section>
   );

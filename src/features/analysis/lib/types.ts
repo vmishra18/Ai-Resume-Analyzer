@@ -62,6 +62,11 @@ export interface ScoreExplanation {
   roleRelevanceRaw: number;
   structureQualityRaw: number;
   alignmentRaw: number;
+  readabilityScore: number;
+  bulletQualityScore: number;
+  estimatedYearsExperience: number | null;
+  requiredYearsExperience: number | null;
+  yearsExperienceScore: number | null;
   bonusSignals: string[];
   canonicalMatchedKeywords: string[];
   canonicalPartialKeywords: string[];

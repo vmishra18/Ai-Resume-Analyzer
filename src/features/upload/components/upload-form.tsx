@@ -24,7 +24,11 @@ const checklist = [
   "Review your results on the next screen"
 ];
 
-export function UploadForm() {
+interface UploadFormProps {
+  userName: string;
+}
+
+export function UploadForm({ userName }: UploadFormProps) {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -111,12 +115,12 @@ export function UploadForm() {
           <p className="text-sm font-semibold uppercase tracking-[0.24em] text-[var(--color-brand-300)]">
             Resume upload
           </p>
-          <h1 className="mt-4 font-heading text-4xl text-white sm:text-5xl">
+          <h1 className="mt-4 font-heading text-4xl text-[var(--foreground)] sm:text-5xl">
             Upload your resume and start a new analysis.
           </h1>
           <p className="mt-5 max-w-2xl text-base leading-8 text-[var(--muted-foreground)]">
-            Add your resume, paste the job description if you want a role-specific match, and we&apos;ll prepare your
-            results right away.
+            {userName.split(" ")[0]}, add your resume, paste the job description if you want a role-specific match, and
+            we&apos;ll prepare your results right away.
           </p>
 
           <div className="mt-8 grid gap-3">
@@ -129,7 +133,7 @@ export function UploadForm() {
 
           <div className="mt-8 rounded-[24px] border border-white/8 bg-white/4 p-5">
             <p className="text-xs uppercase tracking-[0.18em] text-[var(--muted-foreground)]">Before you upload</p>
-            <p className="mt-3 text-sm leading-7 text-white/84">
+            <p className="mt-3 text-sm leading-7 text-[var(--foreground)]">
               Accepted formats: PDF and DOCX. Max file size: {formatBytes(MAX_RESUME_FILE_SIZE)}. For the best results,
               use a text-based resume export rather than a scanned document.
             </p>
@@ -142,7 +146,7 @@ export function UploadForm() {
               <p className="text-sm font-semibold uppercase tracking-[0.24em] text-[var(--color-brand-300)]">
                 New analysis
               </p>
-              <h2 className="mt-4 font-heading text-3xl text-white">Start analysis</h2>
+              <h2 className="mt-4 font-heading text-3xl text-[var(--foreground)]">Start analysis</h2>
             </div>
 
             <div>
@@ -188,7 +192,7 @@ export function UploadForm() {
                   </div>
 
                   <div className="flex-1">
-                    <p className="text-lg font-semibold text-white">Drag and drop your resume here</p>
+                    <p className="text-lg font-semibold text-[var(--foreground)]">Drag and drop your resume here</p>
                     <p className="mt-2 text-sm leading-7 text-[var(--muted-foreground)]">
                       or click to choose a local PDF or DOCX file
                     </p>
@@ -198,9 +202,9 @@ export function UploadForm() {
                 {selectedFile ? (
                   <div className="mt-5 rounded-2xl border border-white/8 bg-white/5 p-4">
                     <div className="flex items-center gap-3">
-                      <FileText className="size-5 text-[var(--color-brand-300)]" />
-                      <div>
-                        <p className="text-sm font-medium text-white">{selectedFile.name}</p>
+                        <FileText className="size-5 text-[var(--color-brand-300)]" />
+                        <div>
+                        <p className="text-sm font-medium text-[var(--foreground)]">{selectedFile.name}</p>
                         <p className="text-xs text-[var(--muted-foreground)]">{formatBytes(selectedFile.size)}</p>
                       </div>
                     </div>
@@ -223,7 +227,7 @@ export function UploadForm() {
             </div>
 
             <div>
-              <label className="mb-3 block text-sm font-medium text-white" htmlFor="jobDescription">
+              <label className="mb-3 block text-sm font-medium text-[var(--foreground)]" htmlFor="jobDescription">
                 Job description
               </label>
               <Textarea

@@ -9,6 +9,26 @@ import type {
 import type { ProcessedJobDescription } from "@/features/job-description/lib/types";
 import { countWholeTermMatches, hasWholeTerm } from "@/features/nlp/server/text-normalization";
 import type { ParsedResumeResult } from "@/features/resume-parser/lib/types";
+import { countWords } from "@/features/resume-parser/server/normalization";
+
+const actionVerbs = [
+  "built",
+  "launched",
+  "shipped",
+  "scaled",
+  "optimized",
+  "improved",
+  "designed",
+  "implemented",
+  "created",
+  "developed",
+  "owned",
+  "led",
+  "reduced",
+  "increased",
+  "delivered",
+  "automated"
+] as const;
 
 function percentage(part: number, total: number) {
   if (total === 0) {
@@ -46,19 +66,14 @@ function getWeightedCoverage(keywords: KeywordArtifact[]) {
   );
 }
 
-function buildKeywordArtifacts(
-  resume: ParsedResumeResult,
-  jobDescription: ProcessedJobDescription
-) {
+function buildKeywordArtifacts(resume: ParsedResumeResult, jobDescription: ProcessedJobDescription) {
   const resumeTokenSet = new Set(
     resume.normalizedText
       .split(/[^a-z0-9+#./-]+/)
       .map((token) => token.trim())
       .filter(Boolean)
   );
-  const mustHaveSet = new Set(
-    jobDescription.mustHaveKeywords.map((keyword) => keyword.normalizedKeyword)
-  );
+  const mustHaveSet = new Set(jobDescription.mustHaveKeywords.map((keyword) => keyword.normalizedKeyword));
 
   return jobDescription.extractedKeywords.map<KeywordArtifact>((keyword) => {
     const exactMatches = keyword.matchTerms.reduce(
@@ -98,10 +113,109 @@ function buildKeywordArtifacts(
   });
 }
 
+function estimateYearsExperience(resume: ParsedResumeResult) {
+  const explicitYears = Array.from(resume.normalizedText.matchAll(/\b(\d+)\+?\s+years?\b/g)).map((match) =>
+    Number(match[1])
+  );
+  const yearMatches = Array.from(
+    resume.rawText.matchAll(
+      /\b(?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)?\.?\s*(20\d{2}|19\d{2})\s*[-–]\s*(?:present|current|now|(?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)?\.?\s*(20\d{2}|19\d{2}))\b/gi
+    )
+  );
+
+  const dateSpans = yearMatches.map((match) => {
+    const startYear = Number(match[1]);
+    const endYear = match[2] ? Number(match[2]) : new Date().getFullYear();
+
+    return Math.max(0, endYear - startYear);
+  });
+
+  const strongestSignal = Math.max(...explicitYears, ...dateSpans, 0);
+
+  return strongestSignal > 0 ? strongestSignal : null;
+}
+
+function calculateYearsExperienceScore(
+  estimatedYearsExperience: number | null,
+  requiredYearsExperience: number | null
+) {
+  if (!requiredYearsExperience) {
+    return null;
+  }
+
+  if (!estimatedYearsExperience) {
+    return 30;
+  }
+
+  if (estimatedYearsExperience >= requiredYearsExperience + 2) {
+    return 100;
+  }
+
+  if (estimatedYearsExperience >= requiredYearsExperience) {
+    return 90;
+  }
+
+  if (estimatedYearsExperience >= requiredYearsExperience - 1) {
+    return 60;
+  }
+
+  return 45;
+}
+
+function calculateReadabilityScore(resume: ParsedResumeResult) {
+  const words = countWords(resume.normalizedText);
+  const sentenceParts = resume.rawText
+    .split(/[.!?]+/)
+    .map((sentence) => sentence.trim())
+    .filter(Boolean);
+  const averageSentenceLength =
+    sentenceParts.length > 0
+      ? sentenceParts.reduce((total, sentence) => total + countWords(sentence), 0) / sentenceParts.length
+      : 0;
+  const lineCount = resume.rawText
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean).length;
+  const averageLineDensity = lineCount > 0 ? words / lineCount : 0;
+
+  let score = 0;
+
+  score += words >= 350 && words <= 950 ? 40 : words >= 250 && words <= 1100 ? 30 : 18;
+  score += averageSentenceLength >= 10 && averageSentenceLength <= 24 ? 35 : averageSentenceLength <= 30 ? 24 : 12;
+  score += averageLineDensity <= 18 ? 25 : averageLineDensity <= 24 ? 16 : 8;
+
+  return Math.min(score, 100);
+}
+
+function calculateBulletQualityScore(resume: ParsedResumeResult) {
+  const bulletLines = resume.rawText
+    .split("\n")
+    .map((line) => line.trim())
+    .filter((line) => /^[-*•]/.test(line));
+
+  if (bulletLines.length === 0) {
+    return 20;
+  }
+
+  const actionLedBullets = bulletLines.filter((line) =>
+    actionVerbs.some((verb) => new RegExp(`\\b${verb}\\b`, "i").test(line))
+  ).length;
+  const quantifiedBullets = bulletLines.filter((line) => /\b(\d+%|\d+x|\d+\+|\$\d+|\d+\s+(users|customers|teams|projects))\b/i.test(line)).length;
+
+  let score = 0;
+
+  score += bulletLines.length >= 6 ? 35 : bulletLines.length >= 3 ? 24 : 12;
+  score += percentage(actionLedBullets, bulletLines.length) >= 60 ? 35 : percentage(actionLedBullets, bulletLines.length) >= 35 ? 24 : 12;
+  score += quantifiedBullets >= 3 ? 30 : quantifiedBullets >= 1 ? 20 : 10;
+
+  return Math.min(score, 100);
+}
+
 function calculateRoleRelevance(
   resume: ParsedResumeResult,
   jobDescription: ProcessedJobDescription,
-  keywordArtifacts: KeywordArtifact[]
+  keywordArtifacts: KeywordArtifact[],
+  yearsExperienceScore: number | null
 ) {
   const signals: number[] = [];
 
@@ -118,25 +232,17 @@ function calculateRoleRelevance(
   }
 
   if (jobDescription.seniority) {
-    signals.push(hasWholeTerm(resume.normalizedText, jobDescription.seniority.toLowerCase()) ? 100 : 25);
+    signals.push(hasWholeTerm(resume.normalizedText, jobDescription.seniority.toLowerCase()) ? 100 : 30);
   }
 
   const domainKeywords = keywordArtifacts.filter((keyword) => keyword.category === "domain");
 
   if (domainKeywords.length > 0) {
-    const weightedMatches = domainKeywords.reduce((total, keyword) => {
-      if (keyword.matchType === "matched") {
-        return total + 1;
-      }
+    signals.push(getWeightedCoverage(domainKeywords));
+  }
 
-      if (keyword.matchType === "partial") {
-        return total + 0.5;
-      }
-
-      return total;
-    }, 0);
-
-    signals.push(Math.round((weightedMatches / domainKeywords.length) * 100));
+  if (yearsExperienceScore !== null) {
+    signals.push(yearsExperienceScore);
   }
 
   return signals.length > 0
@@ -148,33 +254,31 @@ function calculateAlignmentScore(
   resume: ParsedResumeResult,
   jobDescription: ProcessedJobDescription,
   keywordArtifacts: KeywordArtifact[],
-  mustHaveCoverage: number
+  mustHaveCoverage: number,
+  yearsExperienceScore: number | null
 ) {
-  const relevantKeywords = keywordArtifacts.filter((keyword) =>
-    keyword.category === "technical_skill" ||
-    keyword.category === "tool" ||
-    keyword.category === "domain"
+  const relevantKeywords = keywordArtifacts.filter(
+    (keyword) => keyword.category === "technical_skill" || keyword.category === "tool" || keyword.category === "domain"
   );
-
   const relevantCoverage = getWeightedCoverage(relevantKeywords);
-
-  const summaryText = `${resume.summary ?? ""} ${resume.normalizedText.slice(0, 350)}`.toLowerCase();
+  const summaryText = `${resume.summary ?? ""} ${resume.normalizedText.slice(0, 420)}`.toLowerCase();
   const summaryKeywordHits = jobDescription.extractedKeywords.filter((keyword) =>
     keyword.matchTerms.some((term) => hasWholeTerm(summaryText, term))
   ).length;
   const summaryAlignment = jobDescription.title && hasWholeTerm(summaryText, jobDescription.title.toLowerCase())
     ? 100
-    : summaryKeywordHits >= 3
+    : summaryKeywordHits >= 4
       ? 90
-      : summaryKeywordHits === 2
+      : summaryKeywordHits >= 2
         ? 70
         : summaryKeywordHits === 1
           ? 45
-          : 0;
+          : 20;
+  const yearsSignal = yearsExperienceScore ?? 70;
 
   return Math.min(
     100,
-    Math.round(relevantCoverage * 0.5 + mustHaveCoverage * 0.35 + summaryAlignment * 0.15)
+    Math.round(relevantCoverage * 0.45 + mustHaveCoverage * 0.35 + summaryAlignment * 0.1 + yearsSignal * 0.1)
   );
 }
 
@@ -192,7 +296,7 @@ function calculateBonusScore(resume: ParsedResumeResult) {
     bonusSignals.push("Quantified impact detected");
   }
 
-  if (/\b(built|launched|shipped|scaled|optimized|improved|designed|implemented)\b/.test(resume.normalizedText)) {
+  if (new RegExp(`\\b(${actionVerbs.join("|")})\\b`).test(resume.normalizedText)) {
     score += 1;
     bonusSignals.push("Strong action-oriented project language detected");
   }
@@ -206,12 +310,13 @@ function calculateBonusScore(resume: ParsedResumeResult) {
 function generateSuggestions(
   resume: ParsedResumeResult,
   keywordArtifacts: KeywordArtifact[],
-  score: ScoreBreakdown
+  score: ScoreBreakdown,
+  readabilityScore: number,
+  bulletQualityScore: number,
+  yearsExperienceScore: number | null
 ): AnalysisSuggestion[] {
   const suggestions: AnalysisSuggestion[] = [];
-  const missingMustHaves = keywordArtifacts.filter(
-    (keyword) => keyword.isMustHave && keyword.matchType === "missing"
-  );
+  const missingMustHaves = keywordArtifacts.filter((keyword) => keyword.isMustHave && keyword.matchType === "missing");
   const missingSections = [
     !resume.sections.summary ? "summary" : null,
     !resume.sections.skills ? "skills" : null,
@@ -220,11 +325,11 @@ function generateSuggestions(
 
   if (missingMustHaves.length > 0) {
     suggestions.push({
-      title: "Add missing must-have skills",
-      description: `Prioritize keywords such as ${missingMustHaves
+      title: "Close the highest-priority skill gaps",
+      description: `Add or strengthen evidence for ${missingMustHaves
         .slice(0, 4)
         .map((keyword) => keyword.keyword)
-        .join(", ")} in your experience or skills sections.`,
+        .join(", ")} in your skills or experience sections.`,
       priority: "high",
       suggestionType: "keyword"
     });
@@ -232,28 +337,48 @@ function generateSuggestions(
 
   if (missingSections.length > 0) {
     suggestions.push({
-      title: "Strengthen section completeness",
-      description: `The resume is missing important sections: ${missingSections.join(", ")}.`,
+      title: "Fill in missing resume sections",
+      description: `This resume would be easier to scan with ${missingSections.join(", ")} clearly labelled.`,
       priority: "high",
       suggestionType: "section"
     });
   }
 
-  if (score.structureQuality <= 6) {
+  if (bulletQualityScore <= 60) {
     suggestions.push({
-      title: "Improve resume structure",
+      title: "Upgrade bullet quality",
       description:
-        "Use clearer headings, keep bullet points consistent, and highlight measurable outcomes to improve scanability.",
+        "Lead bullets with action verbs, make outcomes more specific, and add measurable impact where you can.",
       priority: "medium",
-      suggestionType: "structure"
+      suggestionType: "readability"
+    });
+  }
+
+  if (readabilityScore <= 62) {
+    suggestions.push({
+      title: "Tighten readability",
+      description:
+        "Shorter sentences, cleaner spacing, and a more concise summary will make the resume easier to scan quickly.",
+      priority: "medium",
+      suggestionType: "readability"
+    });
+  }
+
+  if (yearsExperienceScore !== null && yearsExperienceScore < 70) {
+    suggestions.push({
+      title: "Make experience depth easier to spot",
+      description:
+        "Call out timeline length, ownership, and sustained work on relevant technologies so experience signals are easier to detect.",
+      priority: "medium",
+      suggestionType: "content"
     });
   }
 
   if (score.alignment <= 6) {
     suggestions.push({
-      title: "Align experience to the job description",
+      title: "Mirror the role language more directly",
       description:
-        "Mirror the job description more closely by adding role-relevant tools, responsibilities, and language to your experience bullets.",
+        "Reflect the job description more closely by adding role-relevant tools, responsibilities, and outcomes to recent experience bullets.",
       priority: "medium",
       suggestionType: "content"
     });
@@ -265,32 +390,27 @@ function generateSuggestions(
 
   if (missingSoftSkills.length > 0) {
     suggestions.push({
-      title: "Add collaboration and communication signals",
-      description: `Consider reflecting soft-skill signals like ${missingSoftSkills
+      title: "Add collaboration and stakeholder signals",
+      description: `Consider reflecting examples of ${missingSoftSkills
         .slice(0, 2)
         .map((keyword) => keyword.keyword)
-        .join(" and ")} through concrete examples.`,
+        .join(" and ")} through concrete project examples.`,
       priority: "low",
       suggestionType: "content"
     });
   }
 
-  return suggestions.slice(0, 5);
+  return suggestions.slice(0, 6);
 }
 
-export function analyzeResumeAgainstJob(
-  resume: ParsedResumeResult,
-  jobDescription: ProcessedJobDescription
-): AnalysisSummary {
+export function analyzeResumeAgainstJob(resume: ParsedResumeResult, jobDescription: ProcessedJobDescription): AnalysisSummary {
   const keywordArtifacts = buildKeywordArtifacts(resume, jobDescription);
   const matchedKeywords = keywordArtifacts.filter((keyword) => keyword.matchType === "matched");
   const partialKeywords = keywordArtifacts.filter((keyword) => keyword.matchType === "partial");
   const missingKeywords = keywordArtifacts.filter((keyword) => keyword.matchType === "missing");
   const mustHaveKeywords = keywordArtifacts.filter((keyword) => keyword.isMustHave);
-
   const keywordCoverage = getWeightedCoverage(keywordArtifacts);
   const mustHaveCoverage = getWeightedCoverage(mustHaveKeywords);
-
   const sectionCompleteness = {
     summary: resume.sections.summary,
     skills: resume.sections.skills,
@@ -298,25 +418,32 @@ export function analyzeResumeAgainstJob(
     education: resume.sections.education,
     projects: resume.sections.projects
   };
-  const sectionHits = Object.values(sectionCompleteness).filter(Boolean).length;
-  const sectionCoverage = percentage(sectionHits, 5);
-  const roleRelevanceRaw = calculateRoleRelevance(resume, jobDescription, keywordArtifacts);
+  const sectionCoverage = percentage(Object.values(sectionCompleteness).filter(Boolean).length, 5);
+  const sectionCoverageAdjusted = Math.round(sectionCoverage * 0.75);
+  const estimatedYearsExperience = estimateYearsExperience(resume);
+  const yearsExperienceScore = calculateYearsExperienceScore(
+    estimatedYearsExperience,
+    jobDescription.requiredYearsExperience
+  );
+  const roleRelevanceRaw = calculateRoleRelevance(resume, jobDescription, keywordArtifacts, yearsExperienceScore);
   const alignmentRaw = calculateAlignmentScore(
     resume,
     jobDescription,
     keywordArtifacts,
-    mustHaveCoverage
+    mustHaveCoverage,
+    yearsExperienceScore
   );
-  const structureQualityRaw = resume.structureScore;
-  const structureQualityAdjusted = Math.round(structureQualityRaw * 0.6);
+  const readabilityScore = calculateReadabilityScore(resume);
+  const bulletQualityScore = calculateBulletQualityScore(resume);
+  const structureQualityRaw = Math.round(resume.structureScore * 0.45 + readabilityScore * 0.2 + bulletQualityScore * 0.35);
   const bonus = calculateBonusScore(resume);
 
   const score: ScoreBreakdown = {
     keywordMatch: Math.round((keywordCoverage * scoringWeights[0].weight) / 100),
     mustHaveSkills: Math.round((mustHaveCoverage * scoringWeights[1].weight) / 100),
-    sectionCompleteness: Math.round((sectionCoverage * scoringWeights[2].weight) / 100),
+    sectionCompleteness: Math.round((sectionCoverageAdjusted * scoringWeights[2].weight) / 100),
     roleRelevance: Math.round((roleRelevanceRaw * scoringWeights[3].weight) / 100),
-    structureQuality: Math.round((structureQualityAdjusted * scoringWeights[4].weight) / 100),
+    structureQuality: Math.round((structureQualityRaw * scoringWeights[4].weight) / 100),
     alignment: Math.round((alignmentRaw * scoringWeights[5].weight) / 100),
     bonus: bonus.score,
     total: 0
@@ -346,6 +473,11 @@ export function analyzeResumeAgainstJob(
     roleRelevanceRaw,
     structureQualityRaw,
     alignmentRaw,
+    readabilityScore,
+    bulletQualityScore,
+    estimatedYearsExperience,
+    requiredYearsExperience: jobDescription.requiredYearsExperience,
+    yearsExperienceScore,
     bonusSignals: bonus.bonusSignals,
     canonicalMatchedKeywords: uniqueLabels(matchedKeywords),
     canonicalPartialKeywords: uniqueLabels(partialKeywords),
@@ -360,6 +492,13 @@ export function analyzeResumeAgainstJob(
     partialKeywords,
     missingKeywords,
     sectionCompleteness,
-    suggestions: generateSuggestions(resume, keywordArtifacts, score)
+    suggestions: generateSuggestions(
+      resume,
+      keywordArtifacts,
+      score,
+      readabilityScore,
+      bulletQualityScore,
+      yearsExperienceScore
+    )
   };
 }
