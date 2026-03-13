@@ -6,16 +6,16 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 
 const proofPoints = [
-  "Transparent ATS-style scoring",
-  "PDF and DOCX extraction pipeline",
-  "Rule-based keyword intelligence",
-  "History, trends, and interview-ready architecture"
+  "Upload PDF or DOCX resumes",
+  "Spot missing keywords and skills",
+  "Get practical suggestions fast",
+  "Save analyses and compare versions"
 ];
 
 const statCards = [
-  { label: "Scoring model", value: "100%", detail: "Deterministic and explainable" },
-  { label: "Parsing formats", value: "2", detail: "PDF and DOCX resume support" },
-  { label: "Core layers", value: "6", detail: "Frontend, backend, parsing, NLP, scoring, data" }
+  { label: "Resume formats", value: "2", detail: "PDF and DOCX support" },
+  { label: "Score areas", value: "6", detail: "Match, skills, sections, and more" },
+  { label: "Saved history", value: "Yes", detail: "Keep track of every version" }
 ];
 
 export function Hero() {
@@ -25,24 +25,24 @@ export function Hero() {
 
       <div className="mx-auto grid max-w-7xl gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
         <div className="max-w-3xl">
-          <Badge className="mb-6">Serious Portfolio Project Blueprint</Badge>
+          <Badge className="mb-6">Resume matching made simpler</Badge>
           <h1 className="max-w-3xl font-heading text-5xl leading-[0.95] text-white sm:text-6xl lg:text-7xl">
-            Build an ATS analyzer that looks like a startup product, not a coding exercise.
+            See how well your resume matches the job before you apply.
           </h1>
           <p className="mt-6 max-w-2xl text-lg leading-8 text-[var(--muted-foreground)] sm:text-xl">
-            Upload a resume, compare it against a job description, and return a clean scoring
-            dashboard backed by deterministic parsing, keyword analysis, and transparent product logic.
+            Upload your resume, paste a job description, and get a clear breakdown of matched skills,
+            missing keywords, section quality, and practical improvements.
           </p>
 
           <div className="mt-8 flex flex-col gap-4 sm:flex-row">
             <Button asChild size="lg">
               <Link href="/upload">
-                Start Building
+                Analyze Resume
                 <ArrowRight className="size-4" />
               </Link>
             </Button>
             <Button asChild size="lg" variant="secondary">
-              <Link href="#architecture">See Architecture</Link>
+              <Link href="#how-it-works">See How It Works</Link>
             </Button>
           </div>
 
@@ -92,7 +92,7 @@ export function Hero() {
                 {[
                   { label: "Matched skills", value: "React, TypeScript, SQL, REST APIs, Tailwind" },
                   { label: "Missing keywords", value: "A/B testing, experimentation, mentoring" },
-                  { label: "Suggestion", value: "Add a concise summary and highlight product impact in projects." }
+                  { label: "Suggestion", value: "Add a short summary and highlight measurable results in recent projects." }
                 ].map((item) => (
                   <div key={item.label} className="rounded-2xl border border-white/8 bg-white/4 p-4">
                     <p className="text-xs uppercase tracking-[0.18em] text-[var(--muted-foreground)]">

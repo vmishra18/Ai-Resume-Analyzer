@@ -162,8 +162,7 @@ export function AnalysisDashboard({
                     {sessionTitle}
                   </h1>
                   <p className="mt-4 max-w-3xl text-base leading-8 text-[var(--muted-foreground)]">
-                    A deterministic ATS-style analysis built from resume parsing, job-description keyword extraction,
-                    and transparent weighted scoring logic.
+                    See how your resume matches this role, where it falls short, and what to improve before you apply.
                   </p>
                 </div>
 
@@ -246,12 +245,12 @@ export function AnalysisDashboard({
 
           <Card className="min-w-0">
             <p className="text-sm font-semibold uppercase tracking-[0.24em] text-[var(--color-brand-300)]">
-              Scoring composition
+              Score breakdown
             </p>
             <h2 className="mt-4 text-2xl font-semibold text-white">Weighted ATS breakdown</h2>
             <p className="mt-3 text-sm leading-7 text-[var(--muted-foreground)]">
-              The final score is a weighted mix of keyword coverage, must-have skill overlap, completeness, relevance,
-              structure quality, alignment, and bonus signals.
+              Your score combines keyword coverage, must-have skills, section completeness, relevance, structure, and
+              overall alignment with the role.
             </p>
             <div className="mt-6">
               {scoreBreakdown.length > 0 ? (

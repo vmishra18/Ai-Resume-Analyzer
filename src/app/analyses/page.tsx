@@ -44,11 +44,11 @@ export default async function AnalysesPage() {
               Analysis history
             </p>
             <h1 className="mt-4 font-heading text-4xl text-white sm:text-5xl">
-              Revisit resume analyses, compare progress, and track score trends.
+              Revisit past analyses and compare how your resume is improving.
             </h1>
             <p className="mt-5 max-w-3xl text-base leading-8 text-[var(--muted-foreground)]">
-              This page turns saved sessions into a useful product surface: recent ATS results, historical trend context,
-              and fast navigation back to any full dashboard.
+              Use your saved analyses to compare scores, reopen full reports, and keep track of which resume version is
+              performing best for the roles you care about.
             </p>
           </div>
 
@@ -68,7 +68,7 @@ export default async function AnalysesPage() {
             </p>
             <h2 className="mt-4 text-2xl font-semibold text-white">Latest score movement</h2>
             <p className="mt-3 text-sm leading-7 text-[var(--muted-foreground)]">
-              Compare recent completed analyses and see whether resume revisions are improving your fit over time.
+              Compare recent completed analyses and see whether your latest resume changes are improving the match.
             </p>
             <div className="mt-6">
               {trendData.length > 0 ? (
@@ -83,15 +83,15 @@ export default async function AnalysesPage() {
 
           <Card>
             <p className="text-sm font-semibold uppercase tracking-[0.24em] text-[var(--color-brand-300)]">
-              Workspace snapshot
+              Useful at a glance
             </p>
-            <h2 className="mt-4 text-2xl font-semibold text-white">What this history view tells you</h2>
+            <h2 className="mt-4 text-2xl font-semibold text-white">What you can do from history</h2>
             <div className="mt-5 space-y-3">
               {[
-                "Which resume version is currently scoring best against target roles.",
-                "Whether your recent edits are improving ATS alignment or creating regressions.",
-                "Which sessions failed parsing and may need a cleaner source file.",
-                "How many JD keywords each saved analysis captured for future comparison work."
+                "See which resume version is scoring best for your target roles.",
+                "Check whether recent edits improved the overall match.",
+                "Spot failed uploads that may need a cleaner source file.",
+                "Open any saved analysis without starting from scratch."
               ].map((item) => (
                 <div key={item} className="rounded-2xl border border-white/8 bg-white/4 px-4 py-3">
                   <p className="text-sm leading-7 text-[var(--muted-foreground)]">{item}</p>

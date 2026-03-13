@@ -2,26 +2,26 @@ import { Card } from "@/components/ui/card";
 import { scoringWeights } from "@/features/analysis/lib/scoring-design";
 
 const scoringNotes = [
-  "Every category is deterministic and traceable to a specific set of rules.",
-  "Must-have skills are weighted more aggressively than general keyword overlap.",
-  "Structure and section completeness protect against keyword stuffing.",
-  "Bonus points reward concrete project depth and measurable technical impact."
+  "Keywords from the job description are checked against your resume content.",
+  "Must-have skills carry more weight than general overlap.",
+  "Section completeness helps flag resumes that are missing important basics.",
+  "Strong project content and clear experience details can improve the final score."
 ];
 
 export function ScoringSection() {
   return (
-    <section id="scoring" className="px-6 py-20 lg:px-8">
+    <section id="results" className="px-6 py-20 lg:px-8">
       <div className="mx-auto max-w-7xl">
         <div className="max-w-3xl">
           <p className="text-sm font-semibold uppercase tracking-[0.24em] text-[var(--color-brand-300)]">
-            ATS scoring design
+            Results
           </p>
           <h2 className="mt-4 font-heading text-4xl text-white sm:text-5xl">
-            Rule-based scoring that stays explainable under scrutiny.
+            Results that are easy to understand and act on.
           </h2>
           <p className="mt-5 text-lg leading-8 text-[var(--muted-foreground)]">
-            The score is a weighted blend of keyword coverage, must-have skills, section detection,
-            role relevance, structural quality, and job alignment. No hidden models. No fuzzy AI claims.
+            Your score combines keyword coverage, must-have skills, section checks, role relevance, resume structure,
+            and overall job alignment.
           </p>
         </div>
 
@@ -48,7 +48,7 @@ export function ScoringSection() {
           </Card>
 
           <Card>
-            <h3 className="text-2xl font-semibold text-white">Practical scoring rules</h3>
+            <h3 className="text-2xl font-semibold text-white">What the score helps you see</h3>
             <div className="mt-6 space-y-3">
               {scoringNotes.map((note) => (
                 <div key={note} className="rounded-2xl border border-white/8 bg-white/4 px-4 py-3">

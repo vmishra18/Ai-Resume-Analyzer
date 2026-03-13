@@ -11,17 +11,16 @@ export default function NotFound() {
           <p className="text-sm font-semibold uppercase tracking-[0.24em] text-[var(--color-brand-300)]">
             404
           </p>
-          <h1 className="mt-4 font-heading text-5xl text-white">This analysis route does not exist.</h1>
+          <h1 className="mt-4 font-heading text-5xl text-white">We couldn&apos;t find that page.</h1>
           <p className="mx-auto mt-5 max-w-2xl text-base leading-8 text-[var(--muted-foreground)]">
-            Use this state for missing reports, deleted sessions, or bad share links. Good empty and error states make
-            the project feel much more like a real product.
+            The link may be out of date, the analysis may have been removed, or the page may never have existed.
           </p>
           <div className="mt-8 flex justify-center gap-3">
             <Button asChild>
               <Link href="/">Back to home</Link>
             </Button>
             <Button asChild variant="secondary">
-              <Link href="/upload">Open analyzer</Link>
+              <Link href="/upload">Start analysis</Link>
             </Button>
           </div>
         </Card>

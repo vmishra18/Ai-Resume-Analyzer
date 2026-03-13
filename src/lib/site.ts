@@ -1,12 +1,12 @@
 export const siteConfig = {
   name: "ATS Resume Analyzer",
   description:
-    "Analyze resumes against job descriptions with deterministic scoring, explainable insights, and SaaS-grade UX.",
-  tagline: "Turn resume feedback into a transparent, recruiter-ready workflow.",
+    "Compare your resume to a job description and get clear feedback on match strength, missing skills, and next steps.",
+  tagline: "Stronger resume feedback for every application.",
   nav: [
     { href: "#features", label: "Features" },
-    { href: "#architecture", label: "Architecture" },
-    { href: "#scoring", label: "Scoring" },
-    { href: "#roadmap", label: "Roadmap" }
+    { href: "#how-it-works", label: "How It Works" },
+    { href: "#results", label: "Results" },
+    { href: "#use-cases", label: "Use Cases" }
   ]
 } as const;

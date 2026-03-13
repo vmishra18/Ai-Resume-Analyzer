@@ -22,7 +22,7 @@ export function SiteHeader() {
               ATS Resume Analyzer
             </p>
             <p className="text-sm text-[var(--muted-foreground)]">
-              Deterministic resume scoring for serious builders
+              Resume feedback that helps you tailor every application
             </p>
           </div>
         </Link>
@@ -44,7 +44,7 @@ export function SiteHeader() {
             <Link href="/analyses">History</Link>
           </Button>
           <Button asChild size="sm">
-            <Link href="/upload">Launch Analyzer</Link>
+            <Link href="/upload">Analyze Resume</Link>
           </Button>
         </div>
 

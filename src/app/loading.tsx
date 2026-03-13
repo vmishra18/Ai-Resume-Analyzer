@@ -1,9 +1,9 @@
 import { Card } from "@/components/ui/card";
 
 const loadingSteps = [
-  "Preparing the resume parsing pipeline",
-  "Normalizing resume and job description text",
-  "Calculating ATS score breakdown"
+  "Reading your resume",
+  "Matching it to the job description",
+  "Preparing your score and suggestions"
 ];
 
 export default function Loading() {
@@ -16,12 +16,12 @@ export default function Loading() {
           </div>
 
           <p className="mt-6 text-sm font-semibold uppercase tracking-[0.24em] text-[var(--color-brand-300)]">
-            Loading state
+            Analysis in progress
           </p>
-          <h1 className="mt-4 font-heading text-4xl text-white">Building the analysis workspace.</h1>
+          <h1 className="mt-4 font-heading text-4xl text-white">We&apos;re analyzing your resume.</h1>
           <p className="mt-5 max-w-2xl text-base leading-8 text-[var(--muted-foreground)]">
-            The final app will use this state while uploads are parsed, keywords are extracted, and the scoring engine
-            assembles an explainable result.
+            This usually takes a moment while your resume is processed, matched against the role, and turned into a
+            complete results dashboard.
           </p>
 
           <div className="mt-8 space-y-3">

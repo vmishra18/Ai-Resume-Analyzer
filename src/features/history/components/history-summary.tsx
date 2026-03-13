@@ -27,25 +27,25 @@ export function HistorySummary({
         {
           label: "Total sessions",
           value: totalSessions,
-          detail: "Saved analyses in the workspace",
+          detail: "Saved analyses in your history",
           icon: BarChart3
         },
         {
           label: "Completed",
           value: completedSessions,
-          detail: "Scored sessions ready to review",
+          detail: "Reports ready to review",
           icon: CheckCircle2
         },
         {
           label: "Average score",
           value: averageScore ?? "--",
-          detail: "Across completed analyses",
+          detail: "Across completed reports",
           icon: ArrowUpRight
         },
         {
           label: "Best score",
           value: bestScore ?? "--",
-          detail: "Highest ATS result so far",
+          detail: "Highest match so far",
           icon: Flame
         },
         {
@@ -53,8 +53,8 @@ export function HistorySummary({
           value: failedCount,
           detail:
             trendDelta === null
-              ? "Need more completed history for trend"
-              : `${trendUp ? "+" : ""}${trendDelta} vs previous completed batch`,
+              ? "More completed analyses will unlock trend tracking"
+              : `${trendUp ? "+" : ""}${trendDelta} compared with the previous set`,
           icon: trendDelta === null ? XCircle : trendUp ? ArrowUpRight : ArrowDownRight
         }
       ].map((item) => {

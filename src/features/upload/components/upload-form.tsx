@@ -20,8 +20,8 @@ const acceptValue = [...ACCEPTED_RESUME_TYPES, ...ACCEPTED_RESUME_EXTENSIONS].jo
 const checklist = [
   "PDF and DOCX only",
   "Maximum size 4 MB",
-  "Optional job description support",
-  "Server-side metadata persistence"
+  "Paste a job description if you have one",
+  "Review your results on the next screen"
 ];
 
 export function UploadForm() {
@@ -109,14 +109,14 @@ export function UploadForm() {
       <div className="mx-auto grid max-w-7xl gap-6 lg:grid-cols-[0.9fr_1.1fr]">
         <Card>
           <p className="text-sm font-semibold uppercase tracking-[0.24em] text-[var(--color-brand-300)]">
-            Resume intake
+            Resume upload
           </p>
           <h1 className="mt-4 font-heading text-4xl text-white sm:text-5xl">
-            Upload a resume and create the first analysis session.
+            Upload your resume and start a new analysis.
           </h1>
           <p className="mt-5 max-w-2xl text-base leading-8 text-[var(--muted-foreground)]">
-            This step captures the resume file, validates the format, stores file metadata, and creates the analysis
-            record. The parser now runs immediately so the next screen can show extracted text and section detection.
+            Add your resume, paste the job description if you want a role-specific match, and we&apos;ll prepare your
+            results right away.
           </p>
 
           <div className="mt-8 grid gap-3">
@@ -128,10 +128,10 @@ export function UploadForm() {
           </div>
 
           <div className="mt-8 rounded-[24px] border border-white/8 bg-white/4 p-5">
-            <p className="text-xs uppercase tracking-[0.18em] text-[var(--muted-foreground)]">Upload rules</p>
+            <p className="text-xs uppercase tracking-[0.18em] text-[var(--muted-foreground)]">Before you upload</p>
             <p className="mt-3 text-sm leading-7 text-white/84">
-              Accepted formats: PDF and DOCX. Max file size: {formatBytes(MAX_RESUME_FILE_SIZE)}. Files are stored
-              locally so the product can remain fully open-source and API-free.
+              Accepted formats: PDF and DOCX. Max file size: {formatBytes(MAX_RESUME_FILE_SIZE)}. For the best results,
+              use a text-based resume export rather than a scanned document.
             </p>
           </div>
         </Card>
@@ -140,9 +140,9 @@ export function UploadForm() {
           <form className="space-y-6" onSubmit={onSubmit}>
             <div>
               <p className="text-sm font-semibold uppercase tracking-[0.24em] text-[var(--color-brand-300)]">
-                Upload form
+                New analysis
               </p>
-              <h2 className="mt-4 font-heading text-3xl text-white">Create analysis</h2>
+              <h2 className="mt-4 font-heading text-3xl text-white">Start analysis</h2>
             </div>
 
             <div>
@@ -217,7 +217,7 @@ export function UploadForm() {
                 <p className="mt-3 text-sm text-rose-300">{errors.resume.message}</p>
               ) : (
                 <p className="mt-3 text-sm text-[var(--muted-foreground)]">
-                  Your upload creates an analysis session, stores file metadata, and immediately starts PDF or DOCX text extraction.
+                  We&apos;ll extract the text from your resume and prepare your analysis immediately.
                 </p>
               )}
             </div>
@@ -228,14 +228,14 @@ export function UploadForm() {
               </label>
               <Textarea
                 id="jobDescription"
-                placeholder="Paste a target role description to prepare for keyword extraction in the next phase."
+                placeholder="Paste the job description here to compare your resume against the role."
                 {...register("jobDescription")}
               />
               {errors.jobDescription ? (
                 <p className="mt-3 text-sm text-rose-300">{errors.jobDescription.message}</p>
               ) : (
                 <p className="mt-3 text-sm text-[var(--muted-foreground)]">
-                  Optional for now, but storing it now sets us up for the next keyword-extraction and scoring phases.
+                  Optional, but recommended if you want a role-specific score and keyword match.
                 </p>
               )}
             </div>
@@ -251,10 +251,10 @@ export function UploadForm() {
                 {isSubmitting ? (
                   <>
                     <LoaderCircle className="size-4 animate-spin" />
-                    Creating analysis
+                    Preparing analysis
                   </>
                 ) : (
-                  "Create analysis session"
+                  "Analyze resume"
                 )}
               </Button>
               <Button
@@ -263,7 +263,7 @@ export function UploadForm() {
                 size="lg"
                 onClick={() => fileInputRef.current?.click()}
               >
-                Choose file
+                Choose resume
               </Button>
             </div>
           </form>

@@ -79,11 +79,11 @@ export function SessionHistoryCard({
         <div>
           <div className="flex items-center gap-2 text-[var(--muted-foreground)]">
             <Clock3 className="size-4" />
-            <p className="text-xs uppercase tracking-[0.18em]">Latest score</p>
+            <p className="text-xs uppercase tracking-[0.18em]">Match score</p>
           </div>
           <p className="mt-4 font-heading text-6xl text-white">{overallScore ?? "--"}</p>
           <p className="mt-2 text-sm text-[var(--muted-foreground)]">
-            {overallScore !== null ? "Deterministic ATS score" : "Waiting for full analysis"}
+            {overallScore !== null ? "Ready to review" : "Waiting for full analysis"}
           </p>
         </div>
 

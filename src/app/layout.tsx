@@ -7,7 +7,7 @@ import "@/app/globals.css";
 export const metadata: Metadata = {
   title: "ATS Resume Analyzer",
   description:
-    "Production-style ATS Resume Analyzer with deterministic scoring, explainable insights, and polished SaaS design."
+    "Upload a resume, compare it to a job description, and get a polished match report with practical suggestions."
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

@@ -12,33 +12,33 @@ import { Card } from "@/components/ui/card";
 const features = [
   {
     icon: FileCode2,
-    title: "Resume parsing pipeline",
-    description: "Accept PDF and DOCX uploads, extract raw text, normalize content, and preserve file metadata."
+    title: "Quick resume upload",
+    description: "Upload a PDF or DOCX resume and start a new analysis in a few clicks."
   },
   {
     icon: ScanSearch,
-    title: "Deterministic NLP layer",
-    description: "Tokenize text, compare skill phrases, categorize keywords, and avoid black-box scoring."
+    title: "Job description matching",
+    description: "Compare your resume against the role to see which skills, tools, and phrases already align."
   },
   {
     icon: LayoutDashboard,
-    title: "Premium analysis dashboard",
-    description: "Present score breakdowns, keyword gaps, section completeness, and action-oriented suggestions."
+    title: "Clear results dashboard",
+    description: "Review your score, matched keywords, missing skills, section checks, and next-step suggestions."
   },
   {
     icon: DatabaseZap,
-    title: "Persistence and history",
-    description: "Store analysis sessions, scoring summaries, and suggestions for trend comparisons over time."
+    title: "Saved history",
+    description: "Keep past analyses so you can revisit results and compare updated resume versions over time."
   },
   {
     icon: Blocks,
-    title: "Interview-grade architecture",
-    description: "Separate parsing, scoring, and suggestion generation so the codebase feels realistic and maintainable."
+    title: "Section checks",
+    description: "See whether your resume includes the sections hiring teams usually expect, such as summary, skills, and experience."
   },
   {
     icon: Sparkles,
-    title: "Startup-style UX polish",
-    description: "Use strong typography, layered surfaces, gradients, and meaningful data visuals instead of toy UI patterns."
+    title: "Actionable suggestions",
+    description: "Turn the score into concrete improvements you can make before sending your application."
   }
 ];
 
@@ -48,13 +48,14 @@ export function FeatureGrid() {
       <div className="mx-auto max-w-7xl">
         <div className="max-w-3xl">
           <p className="text-sm font-semibold uppercase tracking-[0.24em] text-[var(--color-brand-300)]">
-            Core capabilities
+            Features
           </p>
           <h2 className="mt-4 font-heading text-4xl text-white sm:text-5xl">
-            Everything a serious resume analysis SaaS needs from day one.
+            Everything you need to tailor a stronger resume.
           </h2>
           <p className="mt-5 max-w-2xl text-lg leading-8 text-[var(--muted-foreground)]">
-            The project is designed to demonstrate real product thinking, not just one clever algorithm.
+            From the first upload to the final score, every screen is designed to help you understand what is working
+            and what needs attention.
           </p>
         </div>
 

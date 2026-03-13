@@ -2,52 +2,51 @@ import { Card } from "@/components/ui/card";
 
 const architectureLayers = [
   {
-    title: "Frontend responsibilities",
+    title: "Upload your resume",
     items: [
-      "Landing page, upload form, loading states, results dashboard, history view",
-      "React Hook Form + Zod validation for job description and file input UX",
-      "Charts, section cards, and analysis summaries built from API response models"
+      "Add a PDF or DOCX resume from your device",
+      "Optionally paste the job description you want to target",
+      "Start a new analysis in one step"
     ]
   },
   {
-    title: "Backend responsibilities",
+    title: "We compare it to the role",
     items: [
-      "Route handlers or server actions for uploads, parsing orchestration, and analysis persistence",
-      "Deterministic scoring service separated from parsing and suggestion generation",
-      "Prisma-based data access layer with strong validation and stable response contracts"
+      "Extract the text from your resume",
+      "Check the job description for important skills and keywords",
+      "Measure how closely your resume matches the role requirements"
     ]
   },
   {
-    title: "Analysis pipeline",
+    title: "You get clear feedback",
     items: [
-      "Extract text from PDF and DOCX",
-      "Normalize and tokenize resume and job description content",
-      "Categorize keywords, compute weighted scores, and persist explainable result artifacts"
+      "A score breakdown across key resume factors",
+      "Matched and missing keywords in one view",
+      "Suggestions you can apply before sending your application"
     ]
   }
 ];
 
 const requestFlow = [
-  "User uploads a resume and optionally pastes a job description.",
-  "Server validates file type and size, stores metadata, and extracts plain text.",
-  "JD processor derives keywords, skill phrases, and must-have indicators.",
-  "Scoring engine compares normalized resume content against the processed JD.",
-  "Suggestion engine converts missing signals into prioritized improvement actions.",
-  "Results, score breakdown, and keyword artifacts are saved and shown in the dashboard."
+  "Upload your resume and add the job description you want to target.",
+  "The app extracts text, checks important role keywords, and reviews resume sections.",
+  "Your dashboard highlights what matches well and what is still missing.",
+  "Suggestions point you toward the most useful edits before you apply.",
+  "Each analysis is saved so you can revisit it later or compare a newer resume version."
 ];
 
 export function ArchitectureSection() {
   return (
-    <section id="architecture" className="px-6 py-20 lg:px-8">
+    <section id="how-it-works" className="px-6 py-20 lg:px-8">
       <div className="mx-auto grid max-w-7xl gap-6 lg:grid-cols-[0.9fr_1.1fr]">
         <Card>
           <p className="text-sm font-semibold uppercase tracking-[0.24em] text-[var(--color-brand-300)]">
-            System design
+            How it works
           </p>
-          <h2 className="mt-4 font-heading text-4xl text-white">Clear boundaries across every major layer.</h2>
+          <h2 className="mt-4 font-heading text-4xl text-white">A simple workflow from upload to improvement plan.</h2>
           <p className="mt-5 text-base leading-8 text-[var(--muted-foreground)]">
-            This architecture is designed so you can discuss tradeoffs confidently in interviews:
-            deterministic scoring, explicit persistence, and UI components that stay free of business logic.
+            The experience is designed to help you move quickly: upload your resume, review the match, and make the
+            changes that matter most.
           </p>
 
           <div className="mt-8 space-y-4">
