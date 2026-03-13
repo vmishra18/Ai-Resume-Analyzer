@@ -1,12 +1,15 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Menu } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { siteConfig } from "@/lib/site";
 
 export function SiteHeader() {
+  const pathname = usePathname();
+
   return (
     <header className="sticky top-0 z-30 border-b border-white/8 bg-[rgba(8,12,20,0.72)] backdrop-blur-xl">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 lg:px-8">
@@ -26,13 +29,13 @@ export function SiteHeader() {
 
         <nav className="hidden items-center gap-8 md:flex">
           {siteConfig.nav.map((item) => (
-            <Link
+            <a
               key={item.href}
-              href={item.href}
+              href={pathname === "/" ? item.href : `/${item.href}`}
               className="text-sm font-medium text-[var(--muted-foreground)] transition hover:text-white"
             >
               {item.label}
-            </Link>
+            </a>
           ))}
         </nav>
 
