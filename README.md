@@ -31,6 +31,7 @@ Implemented so far:
 - role title, seniority, and categorized keyword insights persisted for later scoring
 - deterministic ATS scoring with weighted breakdown persistence
 - keyword match results and rule-based improvement suggestions stored per analysis
+- polished analysis dashboard with reusable components and score visualization
 
 ## Getting started
 
