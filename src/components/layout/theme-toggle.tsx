@@ -18,7 +18,7 @@ export function ThemeToggle() {
       className="min-w-0"
     >
       {theme === "dark" ? <SunMedium className="size-4" /> : <MoonStar className="size-4" />}
-      <span className="hidden sm:inline">{theme === "dark" ? "Light mode" : "Dark mode"}</span>
+      <span className="hidden xl:inline">{theme === "dark" ? "Light mode" : "Dark mode"}</span>
     </Button>
   );
 }

@@ -97,17 +97,17 @@ export function AuthPanel() {
               Private workspace
             </p>
             <h1 className="mt-4 font-heading text-4xl text-[var(--foreground)] sm:text-5xl">
-              Save your resume history, compare versions, and keep your job search private.
+              Save your resume checks and keep your job search private.
             </h1>
             <p className="mt-5 max-w-2xl text-base leading-8 text-[var(--muted-foreground)]">
-              Create an account once and every analysis stays attached to your own workspace. Come back to compare
-              versions, revisit high-scoring resumes, and continue improving over time.
+              Create an account once and every analysis stays attached to your own workspace. Come back to revisit
+              earlier checks and continue improving over time.
             </p>
 
             <div className="mt-8 grid gap-3">
               {[
                 "Private analysis history tied to your account",
-                "Side-by-side resume comparison for the same role",
+                "A clear record of past resume checks",
                 "Theme preference saved in your browser",
                 "Faster repeat analysis for familiar job descriptions"
               ].map((item) => (

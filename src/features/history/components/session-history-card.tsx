@@ -94,9 +94,6 @@ export function SessionHistoryCard({
               <ArrowRight className="size-4" />
             </Link>
           </Button>
-          <Button asChild variant="secondary" className="w-full">
-            <Link href={`/compare?left=${id}`}>Compare this version</Link>
-          </Button>
         </div>
       </div>
     </Card>

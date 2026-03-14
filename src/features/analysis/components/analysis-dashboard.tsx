@@ -86,8 +86,6 @@ export interface AnalysisDashboardProps {
     priority: string;
   }>;
   actions?: {
-    reportHref: string;
-    shareHref: Route;
     historyHref: Route;
     uploadHref: Route;
   };
@@ -201,15 +199,6 @@ export function AnalysisDashboard({
                 <div className="mt-6 flex flex-wrap gap-3">
                   <Button asChild size="sm">
                     <Link href={actions.uploadHref}>New analysis</Link>
-                  </Button>
-                  <Button asChild size="sm" variant="secondary">
-                    <a href={actions.reportHref}>Download report</a>
-                  </Button>
-                  <Button asChild size="sm" variant="secondary">
-                    <Link href={actions.shareHref}>Share view</Link>
-                  </Button>
-                  <Button asChild size="sm" variant="secondary">
-                    <Link href="/compare">Compare versions</Link>
                   </Button>
                   <Button asChild size="sm" variant="ghost">
                     <Link href={actions.historyHref}>History</Link>

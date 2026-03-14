@@ -19,21 +19,21 @@ ATS Resume Analyzer is a production-style web application that compares a candid
 - Auditing whether a resume is missing key sections like summary or projects.
 - Tracking whether resume revisions improve job-fit over time.
 
-## 4. Why it is valuable as a portfolio project
+## 4. Why it is a strong product build
 
 - Demonstrates full-stack architecture, file upload, persistence, and data modeling.
 - Shows product judgment through polished UX and explainable scoring.
 - Proves the ability to build useful features without paid AI services.
-- Creates strong interview discussion points around deterministic systems and tradeoffs.
-- Lets recruiters see backend rigor and frontend polish in the same project.
+- Shows how deterministic systems can still feel polished and useful.
+- Combines backend rigor and frontend polish in one product.
 
-## 5. How to present it in interviews
+## 5. How to explain the product
 
 - Lead with the problem: resumes are often opaque to ATS systems and most tools hide scoring logic.
 - Emphasize your design decision: deterministic and explainable scoring over black-box AI claims.
 - Walk through the pipeline: upload -> parse -> normalize -> extract keywords -> score -> persist -> visualize.
 - Highlight engineering boundaries: parsing services, scoring engine, suggestions engine, Prisma models, and UI components.
-- Discuss tradeoffs honestly: rules are interpretable and cheap, but less adaptive than ML. That tradeoff is intentional for transparency and portfolio clarity.
+- Discuss tradeoffs honestly: rules are interpretable and cheap, but less adaptive than ML. That tradeoff is intentional for transparency and control.
 
 ## 6. Final recommended stack
 
@@ -42,7 +42,7 @@ ATS Resume Analyzer is a production-style web application that compares a candid
 - Tailwind CSS for a polished UI system and fast iteration.
 - shadcn/ui patterns with local components for accessible building blocks.
 - React Hook Form + Zod for ergonomic form state and shared validation.
-- Prisma ORM for clean database access and interview-friendly schema design.
+- Prisma ORM for clean database access and maintainable schema design.
 - SQLite for local development, with a clean path to PostgreSQL later.
 - `pdf-parse` for PDF extraction.
 - `mammoth` for DOCX extraction.
@@ -233,7 +233,7 @@ public/                    Static assets
 
 - Goal: make the project visually impressive early.
 - Files: layout, marketing sections, visual tokens, CTA pages.
-- Why now: it creates motivation and makes the repo instantly portfolio-worthy.
+- Why now: it creates motivation and gives the product a strong first impression.
 - Exact tasks: build navigation, hero, architecture section, scoring section, and roadmap.
 - Completion outcome: polished SaaS-style homepage.
 
@@ -263,7 +263,7 @@ public/                    Static assets
 
 ### Phase 6: ATS scoring engine
 
-- Goal: compute deterministic, interview-friendly scores.
+- Goal: compute deterministic, explainable scores.
 - Files: scoring service, suggestion engine, response mappers.
 - Why now: this is the product's core differentiator.
 - Exact tasks: implement weighting, missing-term logic, section rules, and transparent explanations.
@@ -273,9 +273,9 @@ public/                    Static assets
 
 - Goal: turn raw scoring into a polished product experience.
 - Files: dashboard UI components, charts, keyword sections, breakdown cards.
-- Why now: the results page is the portfolio centerpiece.
+- Why now: the results page is the product centerpiece.
 - Exact tasks: build score card, charts, suggestions panel, section completeness, and insights cards.
-- Completion outcome: recruiter-friendly screenshots and demo flow.
+- Completion outcome: a strong and understandable analysis flow.
 
 ### Phase 8: persistence and analysis history
 
@@ -293,21 +293,17 @@ public/                    Static assets
 - Exact tasks: export report, share page, dark mode, readability checks, parser edge cases, and empty states.
 - Completion outcome: credible product polish.
 
-### Phase 10: README and interview presentation notes
+### Phase 10: README and product notes
 
-- Goal: make the project easy to showcase.
-- Files: `README.md`, interview notes, setup docs.
+- Goal: make the project easy to run and understand.
+- Files: `README.md`, setup docs.
 - Why now: the implementation needs to exist before the narrative is finalized.
 - Exact tasks: write architecture summary, setup guide, scoring explanation, screenshots checklist, and demo script.
-- Completion outcome: showcase-ready repository.
+- Completion outcome: well-documented repository.
 
-## 13. Project pitch assets
+## 13. Product summary
 
-- GitHub repo description: `ATS Resume Analyzer: a deterministic, full-stack SaaS app for resume-to-job scoring with explainable insights.`
-- One-line project pitch: `A premium full-stack web app that scores resumes against job descriptions using transparent, rule-based NLP and ATS-style analysis.`
-- Resume bullet point: `Built a production-style ATS Resume Analyzer with Next.js, Prisma, SQLite, and deterministic NLP scoring, including PDF/DOCX parsing, explainable keyword analysis, and a polished SaaS dashboard.`
-- Interview talking points:
-  - I chose deterministic scoring to keep the product explainable and cost-free.
-  - I separated extraction, NLP, scoring, and persistence so each layer could evolve independently.
-  - I used Prisma models to preserve every analysis artifact for history, comparison, and future reporting features.
-  - The UI was designed to feel like a real SaaS product, which helped me demonstrate both frontend craft and backend architecture.
+- Product description: `Resume Signal compares resumes against job descriptions and highlights the clearest next improvements before you apply.`
+- Core principle: deterministic scoring keeps the product understandable and cost-free.
+- System design: extraction, NLP, scoring, and persistence are separated so each layer can evolve independently.
+- Data model: Prisma models preserve every analysis artifact for history, comparison, and reporting features.

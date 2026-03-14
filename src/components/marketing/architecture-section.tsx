@@ -30,15 +30,15 @@ const scenarios = [
 export function ArchitectureSection() {
   return (
     <section id="scenarios" className="px-6 py-20 lg:px-8">
-      <div className="mx-auto grid max-w-7xl gap-6 lg:grid-cols-[0.88fr_1.12fr]">
+      <div className="mx-auto grid max-w-7xl gap-6 lg:grid-cols-[0.92fr_1.08fr]">
         <Card>
-          <p className="text-sm font-semibold uppercase tracking-[0.24em] text-[var(--color-brand-300)]">Scenarios</p>
+          <p className="text-sm font-semibold uppercase tracking-[0.24em] text-[var(--color-brand-300)]">How it helps</p>
           <h2 className="mt-4 font-heading text-4xl text-[var(--foreground)] sm:text-5xl">
-            Designed around the way people actually tailor resumes.
+            Built around the moments when resume feedback is most useful.
           </h2>
           <p className="mt-5 text-base leading-8 text-[var(--muted-foreground)]">
-            Resume Signal is most useful when you already have a draft and need clear direction. It helps you decide
-            what to keep, what to rewrite, and which version deserves the next application.
+            Resume Signal works best when you already have a draft and need a clear next move. It helps you decide what
+            to keep, what to rewrite, and which version is ready to send.
           </p>
 
           <div className="mt-8 space-y-4">

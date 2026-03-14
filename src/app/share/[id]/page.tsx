@@ -1,6 +1,4 @@
 import { notFound } from "next/navigation";
-import type { Route } from "next";
-
 import { AnalysisDashboard } from "@/features/analysis/components/analysis-dashboard";
 import { buildAnalysisDashboardData, getAnalysisSessionOrNull } from "@/features/analysis/server/get-analysis-session";
 
@@ -24,12 +22,6 @@ export default async function ShareAnalysisPage({ params }: ShareAnalysisPagePro
     <AnalysisDashboard
       {...dashboardData}
       headerBadge="Shareable results"
-      actions={{
-        reportHref: `/api/analyses/${session.id}/report`,
-        shareHref: `/share/${session.id}` as Route,
-        historyHref: "/analyses",
-        uploadHref: "/upload"
-      }}
     />
   );
 }

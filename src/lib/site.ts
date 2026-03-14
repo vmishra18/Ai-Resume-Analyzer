@@ -5,8 +5,6 @@ export const siteConfig = {
   tagline: "Sharper resume feedback for every application.",
   nav: [
     { href: "#features", label: "Features" },
-    { href: "#scenarios", label: "Scenarios" },
-    { href: "#results", label: "Results" },
-    { href: "#compare", label: "Compare" }
+    { href: "#scenarios", label: "How it helps" }
   ]
 } as const;

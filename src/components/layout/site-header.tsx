@@ -19,6 +19,7 @@ export function SiteHeader({ currentUser }: SiteHeaderProps) {
   const pathname = usePathname();
   const router = useRouter();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const displayName = currentUser?.name?.trim() || "Workspace";
 
   const navItems = siteConfig.nav.map((item) => ({
     ...item,
@@ -39,20 +40,20 @@ export function SiteHeader({ currentUser }: SiteHeaderProps) {
 
   return (
     <header className="sticky top-0 z-30 border-b border-[var(--border-soft)] bg-[var(--header-bg)] backdrop-blur-xl">
-      <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-4 sm:px-6 lg:px-8">
         <Link href="/" className="flex min-w-0 items-center gap-3">
           <div className="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-[linear-gradient(135deg,var(--color-brand-500),var(--color-accent-500))] text-sm font-bold text-white shadow-[0_10px_30px_rgba(245,106,72,0.3)]">
             RS
           </div>
           <div className="min-w-0">
             <p className="font-heading text-sm tracking-[0.24em] text-[var(--foreground)] uppercase">{siteConfig.name}</p>
-            <p className="truncate text-sm text-[var(--muted-foreground)]">
-              Private resume feedback that helps you tailor every application
+            <p className="max-w-[12rem] truncate text-sm text-[var(--muted-foreground)] sm:max-w-[18rem] lg:max-w-[14rem] xl:max-w-none">
+              {siteConfig.tagline}
             </p>
           </div>
         </Link>
 
-        <nav className="hidden items-center gap-8 md:flex">
+        <nav className="hidden items-center gap-6 lg:flex xl:gap-8">
           {navItems.map((item) => (
             <a
               key={item.href}
@@ -64,20 +65,17 @@ export function SiteHeader({ currentUser }: SiteHeaderProps) {
           ))}
         </nav>
 
-        <div className="hidden items-center gap-3 md:flex">
+        <div className="hidden items-center gap-2 lg:flex xl:gap-3">
           <ThemeToggle />
           {currentUser ? (
             <>
               <Button asChild variant="ghost" size="sm">
                 <Link href="/analyses">History</Link>
               </Button>
-              <Button asChild variant="secondary" size="sm">
-                <Link href="/compare">Compare</Link>
-              </Button>
-              <div className="rounded-full border border-[var(--border-soft)] bg-[var(--surface-2)] px-3 py-2 text-sm text-[var(--muted-foreground)]">
-                {currentUser.name}
+              <div className="max-w-[8.5rem] truncate rounded-full border border-[var(--border-soft)] bg-[var(--surface-2)] px-3 py-2 text-sm text-[var(--muted-foreground)] xl:max-w-[10rem]">
+                {displayName}
               </div>
-              <Button variant="ghost" size="sm" onClick={handleLogout}>
+              <Button variant="ghost" size="sm" onClick={handleLogout} className="hidden xl:inline-flex">
                 Sign out
               </Button>
               <Button asChild size="sm">
@@ -96,7 +94,7 @@ export function SiteHeader({ currentUser }: SiteHeaderProps) {
           )}
         </div>
 
-        <div className="flex items-center gap-2 md:hidden">
+        <div className="flex items-center gap-2 lg:hidden">
           <ThemeToggle />
           <Button
             variant="secondary"
@@ -110,7 +108,7 @@ export function SiteHeader({ currentUser }: SiteHeaderProps) {
       </div>
 
       {isMobileOpen ? (
-        <div className="border-t border-[var(--border-soft)] bg-[var(--header-bg)] px-4 py-4 md:hidden">
+        <div className="border-t border-[var(--border-soft)] bg-[var(--header-bg)] px-4 py-4 lg:hidden">
           <div className="mx-auto flex max-w-7xl flex-col gap-3">
             {navItems.map((item) => (
               <a
@@ -125,19 +123,15 @@ export function SiteHeader({ currentUser }: SiteHeaderProps) {
 
             {currentUser ? (
               <>
+                <div className="rounded-2xl border border-[var(--border-soft)] bg-[var(--surface-2)] px-4 py-3 text-sm text-[var(--muted-foreground)]">
+                  Signed in as {displayName}
+                </div>
                 <Link
                   href="/analyses"
                   className="rounded-2xl border border-[var(--border-soft)] bg-[var(--surface-2)] px-4 py-3 text-sm font-medium text-[var(--foreground)]"
                   onClick={() => setIsMobileOpen(false)}
                 >
                   History
-                </Link>
-                <Link
-                  href="/compare"
-                  className="rounded-2xl border border-[var(--border-soft)] bg-[var(--surface-2)] px-4 py-3 text-sm font-medium text-[var(--foreground)]"
-                  onClick={() => setIsMobileOpen(false)}
-                >
-                  Compare
                 </Link>
                 <Link
                   href="/upload"
