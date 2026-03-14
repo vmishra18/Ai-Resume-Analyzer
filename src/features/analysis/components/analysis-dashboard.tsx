@@ -14,6 +14,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { KeywordGroup } from "@/features/analysis/components/keyword-group";
+import { RewriteCopyButton } from "@/features/analysis/components/rewrite-copy-button";
 import { ScoreBreakdownChart } from "@/features/analysis/components/score-breakdown-chart";
 
 export interface AnalysisDashboardProps {
@@ -231,6 +232,87 @@ function formatEvidenceLabel(value: string) {
   return value.replace(/_/g, " ");
 }
 
+function getPriorityWeight(priority: string) {
+  switch (priority) {
+    case "high":
+      return 0;
+    case "medium":
+      return 1;
+    default:
+      return 2;
+  }
+}
+
+function buildScoreNarrative({
+  overallScore,
+  scoreSummary,
+  missingKeywordCount
+}: {
+  overallScore: number | null;
+  scoreSummary: NonNullable<AnalysisDashboardProps["scoreSummary"]> | null;
+  missingKeywordCount: number;
+}) {
+  if (!scoreSummary) {
+    return {
+      title: "What matters most",
+      summary: "This explanation appears once the scoring engine has enough data to compare the resume with the target role.",
+      points: [] as string[]
+    };
+  }
+
+  const points: string[] = [];
+
+  if (scoreSummary.mustHaveCoverage < 75) {
+    points.push(`Only ${scoreSummary.mustHaveCoverage}% of the must-have signals are clearly represented right now.`);
+  }
+
+  if (missingKeywordCount > 0) {
+    points.push(`${missingKeywordCount} role keywords are still missing or too indirect to count strongly.`);
+  }
+
+  if (scoreSummary.roleFamilyAlignment === "mismatch" || scoreSummary.roleFamilyAlignment === "adjacent") {
+    points.push(
+      `The resume reads more like a ${formatRoleFamilyLabel(scoreSummary.resumeRoleFamily).toLowerCase()} profile than the target ${formatRoleFamilyLabel(scoreSummary.roleFamily).toLowerCase()} role.`
+    );
+  }
+
+  if (scoreSummary.seniorityMismatch.hasMismatch && scoreSummary.seniorityMismatch.summary) {
+    points.push(scoreSummary.seniorityMismatch.summary);
+  }
+
+  if (scoreSummary.semanticMatches.length > 0) {
+    points.push(
+      `Some skills are only being inferred semantically, like ${scoreSummary.semanticMatches
+        .slice(0, 2)
+        .map((match) => `${match.keyword} via ${match.evidence}`)
+        .join(" and ")}. Naming them directly would improve the match.`
+    );
+  }
+
+  if (scoreSummary.bulletQualityScore < 70 || scoreSummary.weakBullets.length > 0) {
+    points.push(
+      `Bullet quality is ${scoreSummary.bulletQualityScore}/100, so stronger ownership, specificity, and measurable outcomes would help the score move faster.`
+    );
+  }
+
+  if (points.length === 0) {
+    points.push("Most of the score is already being supported by direct skill evidence, clear structure, and readable bullet writing.");
+  }
+
+  const summary =
+    overallScore !== null && overallScore >= 80
+      ? "The resume is close. The biggest opportunity is making the strongest evidence more explicit."
+      : overallScore !== null && overallScore >= 60
+        ? "The foundation is there, but a few high-signal gaps are still dragging the score down."
+        : "The score is mainly being held back by missing role evidence and clarity in how recent work is described.";
+
+  return {
+    title: "What matters most",
+    summary,
+    points: points.slice(0, 3)
+  };
+}
+
 export function AnalysisDashboard({
   sessionTitle,
   status,
@@ -262,6 +344,18 @@ export function AnalysisDashboard({
   const achievementSignals = scoreSummary?.achievementSignals ?? [];
   const weakBullets = scoreSummary?.weakBullets ?? [];
   const rewriteAssist = scoreSummary?.rewriteAssist ?? [];
+  const prioritizedSuggestions = [...suggestions]
+    .sort((left, right) => {
+      const priorityDelta = getPriorityWeight(left.priority) - getPriorityWeight(right.priority);
+
+      return priorityDelta !== 0 ? priorityDelta : left.title.localeCompare(right.title);
+    })
+    .slice(0, 3);
+  const scoreNarrative = buildScoreNarrative({
+    overallScore,
+    scoreSummary,
+    missingKeywordCount: missingKeywords.length
+  });
   const notebookStats = [
     { label: "Created", value: createdAt, icon: Activity },
     {
@@ -431,15 +525,21 @@ export function AnalysisDashboard({
 
             <Card>
               <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-[var(--color-brand-300)]">
-                Revision queue
+                Priority queue
               </p>
-              <h2 className="mt-4 text-2xl font-semibold text-[var(--foreground)]">Improvement suggestions</h2>
-              {suggestions.length > 0 ? (
+              <h2 className="mt-4 text-2xl font-semibold text-[var(--foreground)]">Top 3 prioritized fixes</h2>
+              <p className="mt-3 text-sm leading-7 text-[var(--muted-foreground)]">
+                These are the highest-leverage edits to make first if you want the score to move without overworking the resume.
+              </p>
+              {prioritizedSuggestions.length > 0 ? (
                 <div className="mt-5 space-y-4">
-                  {suggestions.map((suggestion) => (
+                  {prioritizedSuggestions.map((suggestion, index) => (
                     <div key={suggestion.id} className="rounded-[14px] border border-[var(--border-soft)] bg-[var(--surface-1)] p-4">
                       <div className="flex items-center justify-between gap-3">
                         <div className="flex items-center gap-2">
+                          <span className="flex size-6 items-center justify-center rounded-full border border-[var(--border-soft)] bg-[var(--surface-2)] font-mono text-[11px] text-[var(--muted-foreground)]">
+                            {index + 1}
+                          </span>
                           <Sparkles className="size-4 text-[var(--color-brand-300)]" />
                           <p className="text-base font-semibold text-[var(--foreground)]">{suggestion.title}</p>
                         </div>
@@ -458,6 +558,26 @@ export function AnalysisDashboard({
               )}
             </Card>
           </div>
+
+          <Card>
+            <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-[var(--color-brand-300)]">
+              Score explanation
+            </p>
+            <h2 className="mt-4 text-2xl font-semibold text-[var(--foreground)]">{scoreNarrative.title}</h2>
+            <p className="mt-4 max-w-3xl text-base leading-8 text-[var(--muted-foreground)]">{scoreNarrative.summary}</p>
+            {scoreNarrative.points.length > 0 ? (
+              <div className="mt-5 grid gap-3 lg:grid-cols-3">
+                {scoreNarrative.points.map((point, index) => (
+                  <div key={point} className="rounded-[14px] border border-[var(--border-soft)] bg-[var(--surface-1)] px-4 py-4">
+                    <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-[var(--muted-foreground)]">
+                      Driver {index + 1}
+                    </p>
+                    <p className="mt-3 text-sm leading-7 text-[var(--foreground)]">{point}</p>
+                  </div>
+                ))}
+              </div>
+            ) : null}
+          </Card>
 
           <div className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
             <Card>
@@ -559,10 +679,13 @@ export function AnalysisDashboard({
                   {rewriteAssist.map((item, index) => (
                     <div key={item.id} className="rounded-[14px] border border-[var(--border-soft)] bg-[var(--surface-1)] p-4">
                       <div className="flex items-center justify-between gap-3">
-                        <p className="text-base font-semibold text-[var(--foreground)]">Draft {index + 1}</p>
-                        <span className="rounded-full border border-[var(--border-soft)] px-3 py-1 font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--muted-foreground)]">
-                          {item.kind === "weak_bullet" ? "Bullet rewrite" : "Missing skill"}
-                        </span>
+                        <div className="flex items-center gap-3">
+                          <p className="text-base font-semibold text-[var(--foreground)]">Draft {index + 1}</p>
+                          <span className="rounded-full border border-[var(--border-soft)] px-3 py-1 font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--muted-foreground)]">
+                            {item.kind === "weak_bullet" ? "Bullet rewrite" : "Missing skill"}
+                          </span>
+                        </div>
+                        <RewriteCopyButton value={item.suggestion} />
                       </div>
                       {item.original ? (
                         <div className="mt-3 rounded-[12px] border border-[var(--border-soft)] bg-[var(--surface-2)] p-3">
