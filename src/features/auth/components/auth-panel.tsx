@@ -151,7 +151,7 @@ export function AuthPanel() {
                   <Input id="register-name" className="pl-11" {...registerForm.register("name")} />
                 </div>
                 {registerForm.formState.errors.name ? (
-                  <p className="mt-2 text-sm text-rose-300">{registerForm.formState.errors.name.message}</p>
+                  <p className="mt-2 text-sm text-[var(--tone-danger-foreground)]">{registerForm.formState.errors.name.message}</p>
                 ) : null}
               </div>
 
@@ -164,7 +164,7 @@ export function AuthPanel() {
                   <Input id="register-email" type="email" className="pl-11" {...registerForm.register("email")} />
                 </div>
                 {registerForm.formState.errors.email ? (
-                  <p className="mt-2 text-sm text-rose-300">{registerForm.formState.errors.email.message}</p>
+                  <p className="mt-2 text-sm text-[var(--tone-danger-foreground)]">{registerForm.formState.errors.email.message}</p>
                 ) : null}
               </div>
 
@@ -177,7 +177,7 @@ export function AuthPanel() {
                   <Input id="register-password" type="password" className="pl-11" {...registerForm.register("password")} />
                 </div>
                 {registerForm.formState.errors.password ? (
-                  <p className="mt-2 text-sm text-rose-300">{registerForm.formState.errors.password.message}</p>
+                  <p className="mt-2 text-sm text-[var(--tone-danger-foreground)]">{registerForm.formState.errors.password.message}</p>
                 ) : null}
               </div>
 
@@ -195,12 +195,12 @@ export function AuthPanel() {
                   />
                 </div>
                 {registerForm.formState.errors.confirmPassword ? (
-                  <p className="mt-2 text-sm text-rose-300">{registerForm.formState.errors.confirmPassword.message}</p>
+                  <p className="mt-2 text-sm text-[var(--tone-danger-foreground)]">{registerForm.formState.errors.confirmPassword.message}</p>
                 ) : null}
               </div>
 
               {registerError ? (
-                <div className="rounded-2xl border border-rose-400/20 bg-rose-400/10 px-4 py-3 text-sm text-rose-100">
+                <div className="rounded-2xl border border-[var(--tone-danger-border)] bg-[var(--tone-danger-bg)] px-4 py-3 text-sm text-[var(--tone-danger-foreground)]">
                   {registerError}
                 </div>
               ) : null}
@@ -227,7 +227,7 @@ export function AuthPanel() {
                   <Input id="login-email" type="email" className="pl-11" {...loginForm.register("email")} />
                 </div>
                 {loginForm.formState.errors.email ? (
-                  <p className="mt-2 text-sm text-rose-300">{loginForm.formState.errors.email.message}</p>
+                  <p className="mt-2 text-sm text-[var(--tone-danger-foreground)]">{loginForm.formState.errors.email.message}</p>
                 ) : null}
               </div>
 
@@ -240,12 +240,12 @@ export function AuthPanel() {
                   <Input id="login-password" type="password" className="pl-11" {...loginForm.register("password")} />
                 </div>
                 {loginForm.formState.errors.password ? (
-                  <p className="mt-2 text-sm text-rose-300">{loginForm.formState.errors.password.message}</p>
+                  <p className="mt-2 text-sm text-[var(--tone-danger-foreground)]">{loginForm.formState.errors.password.message}</p>
                 ) : null}
               </div>
 
               {loginError ? (
-                <div className="rounded-2xl border border-rose-400/20 bg-rose-400/10 px-4 py-3 text-sm text-rose-100">
+                <div className="rounded-2xl border border-[var(--tone-danger-border)] bg-[var(--tone-danger-bg)] px-4 py-3 text-sm text-[var(--tone-danger-foreground)]">
                   {loginError}
                 </div>
               ) : null}

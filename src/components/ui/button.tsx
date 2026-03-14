@@ -5,15 +5,15 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)] disabled:pointer-events-none disabled:opacity-50",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-[12px] text-sm font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)] disabled:pointer-events-none disabled:opacity-50",
   {
     variants: {
       variant: {
         default:
-          "bg-[var(--color-brand-500)] text-white shadow-[0_18px_45px_rgba(245,106,72,0.25)] hover:bg-[var(--color-brand-600)]",
+          "bg-[var(--color-brand-500)] text-white shadow-[0_10px_24px_rgba(49,82,207,0.24)] hover:-translate-y-0.5 hover:bg-[var(--color-brand-600)]",
         secondary:
           "border border-[var(--border-soft)] bg-[var(--surface-2)] text-[var(--foreground)] hover:bg-[var(--surface-3)]",
-        ghost: "text-[var(--foreground)] hover:bg-[var(--surface-2)]"
+        ghost: "text-[var(--foreground)] hover:bg-[var(--surface-1)]"
       },
       size: {
         default: "h-11 px-5",

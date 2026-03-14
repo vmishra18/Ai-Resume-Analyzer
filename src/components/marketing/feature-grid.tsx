@@ -1,7 +1,5 @@
 import { LayoutDashboard, ScanSearch, Sparkles, Target } from "lucide-react";
 
-import { Card } from "@/components/ui/card";
-
 const features = [
   {
     icon: ScanSearch,
@@ -28,30 +26,39 @@ const features = [
 export function FeatureGrid() {
   return (
     <section id="features" className="px-6 py-20 lg:px-8">
-      <div className="mx-auto max-w-7xl">
-        <div className="max-w-3xl">
-          <p className="text-sm font-semibold uppercase tracking-[0.24em] text-[var(--color-brand-300)]">Features</p>
-          <h2 className="mt-4 font-heading text-4xl text-[var(--foreground)] sm:text-5xl">
-            A simpler way to tailor each application.
-          </h2>
-          <p className="mt-5 max-w-2xl text-lg leading-8 text-[var(--muted-foreground)]">
-            The workflow stays focused on the questions people actually have before applying: does this resume fit, what
-            is missing, and what should I fix first?
+      <div className="mx-auto max-w-7xl border-t border-[var(--border-soft)] pt-8">
+        <div className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr]">
+          <div className="max-w-md">
+            <p className="text-sm font-semibold uppercase tracking-[0.24em] text-[var(--color-brand-300)]">Features</p>
+            <h2 className="mt-4 font-heading text-4xl font-semibold text-[var(--foreground)] sm:text-5xl">
+              A clearer reading of each resume draft.
+            </h2>
+          </div>
+          <p className="max-w-2xl text-lg leading-8 text-[var(--muted-foreground)]">
+            The workflow stays grounded in practical questions: does this fit the role, which signals are missing, and
+            what should be rewritten before the application goes out.
           </p>
         </div>
 
-        <div className="mt-12 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
-          {features.map((feature) => {
+        <div className="mt-12 grid gap-x-10 gap-y-8 md:grid-cols-2">
+          {features.map((feature, index) => {
             const Icon = feature.icon;
 
             return (
-              <Card key={feature.title} className="min-h-[210px]">
-                <div className="inline-flex rounded-2xl border border-[var(--border-soft)] bg-[var(--surface-2)] p-3">
-                  <Icon className="size-6 text-[var(--color-brand-300)]" />
+              <div key={feature.title} className="border-t border-[var(--border-soft)] pt-5">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="inline-flex items-center gap-3">
+                    <Icon className="size-5 text-[var(--color-brand-300)]" />
+                    <span className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--muted-foreground)]">
+                      0{index + 1}
+                    </span>
+                  </div>
                 </div>
-                <h3 className="mt-5 text-xl font-semibold text-[var(--foreground)]">{feature.title}</h3>
-                <p className="mt-3 text-sm leading-7 text-[var(--muted-foreground)]">{feature.description}</p>
-              </Card>
+                <h3 className="mt-5 font-heading text-3xl font-semibold leading-tight text-[var(--foreground)]">
+                  {feature.title}
+                </h3>
+                <p className="mt-3 max-w-md text-sm leading-7 text-[var(--muted-foreground)]">{feature.description}</p>
+              </div>
             );
           })}
         </div>

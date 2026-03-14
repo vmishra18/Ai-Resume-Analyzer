@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FileText, LoaderCircle, UploadCloud } from "lucide-react";
 import type { Route } from "next";
-import { startTransition, useRef, useState } from "react";
+import { startTransition, useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 
@@ -24,6 +24,29 @@ const checklist = [
   "Review your results on the next screen"
 ];
 
+const analysisProgressStages = [
+  {
+    label: "Uploading resume",
+    detail: "Saving the file and validating the input."
+  },
+  {
+    label: "Extracting resume text",
+    detail: "Parsing sections, bullets, and timeline signals."
+  },
+  {
+    label: "Matching role family and skills",
+    detail: "Checking semantic skills, seniority, and missing signals."
+  },
+  {
+    label: "Building rewrite assists",
+    detail: "Preparing bullet rewrites and improvement suggestions."
+  },
+  {
+    label: "Preparing notebook",
+    detail: "Assembling the final analysis dashboard."
+  }
+] as const;
+
 interface UploadFormProps {
   userName: string;
 }
@@ -33,6 +56,7 @@ export function UploadForm({ userName }: UploadFormProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [activeStageIndex, setActiveStageIndex] = useState(0);
 
   const {
     register,
@@ -49,6 +73,19 @@ export function UploadForm({ userName }: UploadFormProps) {
   });
 
   const selectedFile = watch("resume");
+
+  useEffect(() => {
+    if (!isSubmitting) {
+      setActiveStageIndex(0);
+      return;
+    }
+
+    const interval = window.setInterval(() => {
+      setActiveStageIndex((current) => (current + 1) % analysisProgressStages.length);
+    }, 1400);
+
+    return () => window.clearInterval(interval);
+  }, [isSubmitting]);
 
   const handleFileSelection = (file: File | null) => {
     setSubmitError(null);
@@ -125,13 +162,13 @@ export function UploadForm({ userName }: UploadFormProps) {
 
           <div className="mt-8 grid gap-3">
             {checklist.map((item) => (
-              <div key={item} className="rounded-2xl border border-white/8 bg-white/4 px-4 py-3">
+              <div key={item} className="rounded-2xl border border-[var(--border-soft)] bg-[var(--surface-2)] px-4 py-3">
                 <p className="text-sm leading-7 text-[var(--muted-foreground)]">{item}</p>
               </div>
             ))}
           </div>
 
-          <div className="mt-8 rounded-[24px] border border-white/8 bg-white/4 p-5">
+          <div className="mt-8 rounded-[24px] border border-[var(--border-soft)] bg-[var(--surface-2)] p-5">
             <p className="text-xs uppercase tracking-[0.18em] text-[var(--muted-foreground)]">Before you upload</p>
             <p className="mt-3 text-sm leading-7 text-[var(--foreground)]">
               Accepted formats: PDF and DOCX. Max file size: {formatBytes(MAX_RESUME_FILE_SIZE)}. For the best results,
@@ -163,7 +200,7 @@ export function UploadForm({ userName }: UploadFormProps) {
                 className={`w-full rounded-[28px] border border-dashed p-6 text-left transition ${
                   isDragging
                     ? "border-[var(--color-brand-500)] bg-[rgba(245,106,72,0.12)]"
-                    : "border-white/14 bg-white/4 hover:bg-white/6"
+                    : "border-[var(--border-soft)] bg-[var(--surface-1)] hover:bg-[var(--surface-2)]"
                 }`}
                 onClick={() => fileInputRef.current?.click()}
                 onDragEnter={(event) => {
@@ -200,7 +237,7 @@ export function UploadForm({ userName }: UploadFormProps) {
                 </div>
 
                 {selectedFile ? (
-                  <div className="mt-5 rounded-2xl border border-white/8 bg-white/5 p-4">
+                  <div className="mt-5 rounded-2xl border border-[var(--border-soft)] bg-[var(--surface-2)] p-4">
                     <div className="flex items-center gap-3">
                         <FileText className="size-5 text-[var(--color-brand-300)]" />
                         <div>
@@ -209,7 +246,7 @@ export function UploadForm({ userName }: UploadFormProps) {
                       </div>
                     </div>
                     {!isAcceptedResumeFile(selectedFile) ? (
-                      <p className="mt-3 text-sm text-amber-300">
+                      <p className="mt-3 text-sm text-[var(--tone-warning-foreground)]">
                         This file may not pass validation. Double-check the format and size before submitting.
                       </p>
                     ) : null}
@@ -218,7 +255,7 @@ export function UploadForm({ userName }: UploadFormProps) {
               </button>
 
               {errors.resume ? (
-                <p className="mt-3 text-sm text-rose-300">{errors.resume.message}</p>
+                <p className="mt-3 text-sm text-[var(--tone-danger-foreground)]">{errors.resume.message}</p>
               ) : (
                 <p className="mt-3 text-sm text-[var(--muted-foreground)]">
                   We&apos;ll extract the text from your resume and prepare your analysis immediately.
@@ -236,7 +273,7 @@ export function UploadForm({ userName }: UploadFormProps) {
                 {...register("jobDescription")}
               />
               {errors.jobDescription ? (
-                <p className="mt-3 text-sm text-rose-300">{errors.jobDescription.message}</p>
+                <p className="mt-3 text-sm text-[var(--tone-danger-foreground)]">{errors.jobDescription.message}</p>
               ) : (
                 <p className="mt-3 text-sm text-[var(--muted-foreground)]">
                   Optional, but recommended if you want a role-specific score and keyword match.
@@ -245,8 +282,55 @@ export function UploadForm({ userName }: UploadFormProps) {
             </div>
 
             {submitError ? (
-              <div className="rounded-2xl border border-rose-400/20 bg-rose-400/10 px-4 py-3 text-sm text-rose-100">
+              <div className="rounded-2xl border border-[var(--tone-danger-border)] bg-[var(--tone-danger-bg)] px-4 py-3 text-sm text-[var(--tone-danger-foreground)]">
                 {submitError}
+              </div>
+            ) : null}
+
+            {isSubmitting ? (
+              <div className="rounded-[22px] border border-[var(--border-soft)] bg-[var(--surface-1)] p-5">
+                <div className="flex items-center gap-3">
+                  <LoaderCircle className="size-5 animate-spin text-[var(--color-brand-300)]" />
+                  <div>
+                    <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[var(--color-brand-300)]">
+                      Analysis pipeline
+                    </p>
+                    <p className="mt-1 text-base font-semibold text-[var(--foreground)]">
+                      {analysisProgressStages[activeStageIndex]?.label}
+                    </p>
+                  </div>
+                </div>
+
+                <p className="mt-4 text-sm leading-7 text-[var(--muted-foreground)]">
+                  {analysisProgressStages[activeStageIndex]?.detail}
+                </p>
+
+                <div className="mt-5 space-y-3">
+                  {analysisProgressStages.map((stage, index) => {
+                    const isComplete = index < activeStageIndex;
+                    const isActive = index === activeStageIndex;
+
+                    return (
+                      <div
+                        key={stage.label}
+                        className={`rounded-[16px] border px-4 py-3 transition ${
+                          isActive
+                            ? "border-[var(--tone-info-border)] bg-[var(--tone-info-bg)]"
+                            : isComplete
+                              ? "border-[var(--tone-success-border)] bg-[var(--tone-success-bg)]"
+                              : "border-[var(--border-soft)] bg-[var(--surface-2)]"
+                        }`}
+                      >
+                        <div className="flex items-center justify-between gap-3">
+                          <p className="text-sm font-medium text-[var(--foreground)]">{stage.label}</p>
+                          <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--muted-foreground)]">
+                            {isComplete ? "done" : isActive ? "running" : "queued"}
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             ) : null}
 

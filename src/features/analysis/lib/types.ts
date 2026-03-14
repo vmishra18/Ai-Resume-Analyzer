@@ -8,6 +8,7 @@ export type KeywordCategory =
 export type KeywordMatchType = "matched" | "missing" | "partial";
 export type SuggestionPriority = "low" | "medium" | "high";
 export type SuggestionType = "keyword" | "section" | "structure" | "content" | "readability";
+export type RoleFamily = "frontend" | "backend" | "product" | "data" | "devops" | "qa" | "general";
 
 export interface KeywordArtifact {
   keyword: string;
@@ -18,6 +19,8 @@ export interface KeywordArtifact {
   occurrences: number;
   isMustHave?: boolean;
   source?: "catalog" | "requirement";
+  matchedVia?: "exact" | "partial" | "semantic";
+  semanticEvidence?: string | null;
 }
 
 export interface SectionCompleteness {
@@ -72,6 +75,35 @@ export interface ScoreExplanation {
   canonicalPartialKeywords: string[];
   canonicalMissingKeywords: string[];
   filteredOutPhrases: string[];
+  roleFamily: RoleFamily | null;
+  resumeRoleFamily: RoleFamily | null;
+  roleFamilyAlignment: "aligned" | "adjacent" | "mismatch" | "unknown";
+  detectedResumeSeniority: string | null;
+  seniorityMismatch: {
+    hasMismatch: boolean;
+    jobSeniority: string | null;
+    resumeSeniority: string | null;
+    summary: string | null;
+  };
+  semanticMatches: Array<{
+    keyword: string;
+    evidence: string;
+  }>;
+  achievementSignals: Array<{
+    bullet: string;
+    evidence: string[];
+  }>;
+  weakBullets: Array<{
+    bullet: string;
+    issues: string[];
+  }>;
+  rewriteAssist: Array<{
+    id: string;
+    kind: "weak_bullet" | "missing_skill";
+    original: string | null;
+    suggestion: string;
+    rationale: string;
+  }>;
 }
 
 export interface AnalysisSuggestion {

@@ -30,6 +30,39 @@ function getScoreExplanation(value: unknown) {
   return (value ?? null) as ScoreExplanation | null;
 }
 
+function getSafeScoreSummary(scoreExplanation: ScoreExplanation | null) {
+  if (!scoreExplanation) {
+    return null;
+  }
+
+  return {
+    keywordCoverage: scoreExplanation.keywordCoverage,
+    mustHaveCoverage: scoreExplanation.mustHaveCoverage,
+    matchedKeywords: scoreExplanation.matchedKeywordCount,
+    partialKeywords: scoreExplanation.partialKeywordCount,
+    totalKeywords: scoreExplanation.totalKeywordCount,
+    bonusSignals: scoreExplanation.bonusSignals ?? [],
+    readabilityScore: scoreExplanation.readabilityScore,
+    bulletQualityScore: scoreExplanation.bulletQualityScore,
+    estimatedYearsExperience: scoreExplanation.estimatedYearsExperience,
+    requiredYearsExperience: scoreExplanation.requiredYearsExperience,
+    roleFamily: scoreExplanation.roleFamily ?? null,
+    resumeRoleFamily: scoreExplanation.resumeRoleFamily ?? null,
+    roleFamilyAlignment: scoreExplanation.roleFamilyAlignment ?? "unknown",
+    detectedResumeSeniority: scoreExplanation.detectedResumeSeniority ?? null,
+    seniorityMismatch: scoreExplanation.seniorityMismatch ?? {
+      hasMismatch: false,
+      jobSeniority: null,
+      resumeSeniority: null,
+      summary: null
+    },
+    semanticMatches: scoreExplanation.semanticMatches ?? [],
+    achievementSignals: scoreExplanation.achievementSignals ?? [],
+    weakBullets: scoreExplanation.weakBullets ?? [],
+    rewriteAssist: scoreExplanation.rewriteAssist ?? []
+  };
+}
+
 function toTitleCase(value: string) {
   return value
     .split(" ")
@@ -115,20 +148,7 @@ export function buildAnalysisDashboardData(session: AnalysisSessionRecord) {
           { label: "Alignment", value: session.scoringSummary.alignmentScore }
         ]
       : [],
-    scoreSummary: scoreExplanation
-      ? {
-          keywordCoverage: scoreExplanation.keywordCoverage,
-          mustHaveCoverage: scoreExplanation.mustHaveCoverage,
-          matchedKeywords: scoreExplanation.matchedKeywordCount,
-          partialKeywords: scoreExplanation.partialKeywordCount,
-          totalKeywords: scoreExplanation.totalKeywordCount,
-          bonusSignals: scoreExplanation.bonusSignals,
-          readabilityScore: scoreExplanation.readabilityScore,
-          bulletQualityScore: scoreExplanation.bulletQualityScore,
-          estimatedYearsExperience: scoreExplanation.estimatedYearsExperience,
-          requiredYearsExperience: scoreExplanation.requiredYearsExperience
-        }
-      : null,
+    scoreSummary: getSafeScoreSummary(scoreExplanation),
     roleMeta: session.jobDescription
       ? {
           title: session.jobDescription.title,

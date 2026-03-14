@@ -1,47 +1,85 @@
 @import "tailwindcss";
 
 :root {
-  --background: #07101b;
-  --foreground: #f7f8fb;
-  --muted-foreground: #9ca7bc;
+  --background: #0c1220;
+  --foreground: #edf3fb;
+  --muted-foreground: #8ea0b8;
   --ring: #ff8d69;
   --font-body: "Avenir Next", "Segoe UI", "Helvetica Neue", sans-serif;
-  --font-heading: "Clash Display", "Avenir Next", "Trebuchet MS", sans-serif;
-  --color-brand-300: #ffb08f;
-  --color-brand-400: #ff936f;
-  --color-brand-500: #f56a48;
-  --color-brand-600: #de5434;
-  --color-accent-500: #34d399;
-  --surface-1: rgba(255, 255, 255, 0.05);
-  --surface-2: rgba(255, 255, 255, 0.08);
-  --surface-3: rgba(255, 255, 255, 0.12);
-  --grid-line: rgba(255, 255, 255, 0.08);
-  --border-soft: rgba(255, 255, 255, 0.1);
-  --card-gradient-start: rgba(255, 255, 255, 0.09);
-  --card-gradient-end: rgba(255, 255, 255, 0.03);
-  --card-shadow: rgba(7, 10, 18, 0.24);
-  --header-bg: rgba(8, 12, 20, 0.72);
+  --font-heading: "Avenir Next", "Segoe UI", "Helvetica Neue", sans-serif;
+  --color-brand-300: #8ea1ff;
+  --color-brand-400: #7086ff;
+  --color-brand-500: #5067f2;
+  --color-brand-600: #3a4bc8;
+  --color-accent-500: #29b6a7;
+  --surface-1: rgba(22, 33, 56, 0.42);
+  --surface-2: rgba(18, 28, 48, 0.78);
+  --surface-3: rgba(31, 44, 69, 0.94);
+  --grid-line: rgba(142, 161, 186, 0.09);
+  --border-soft: rgba(142, 161, 186, 0.18);
+  --card-gradient-start: rgba(16, 24, 41, 0.98);
+  --card-gradient-end: rgba(11, 18, 32, 0.98);
+  --card-shadow: rgba(2, 8, 23, 0.22);
+  --header-bg: rgba(10, 16, 30, 0.9);
+  --panel-strong: rgba(15, 23, 38, 0.96);
+  --panel-strong-shadow: rgba(2, 8, 23, 0.2);
+  --tone-success-bg: rgba(52, 211, 153, 0.12);
+  --tone-success-border: rgba(52, 211, 153, 0.28);
+  --tone-success-foreground: #c9f7e4;
+  --tone-warning-bg: rgba(251, 191, 36, 0.14);
+  --tone-warning-border: rgba(251, 191, 36, 0.3);
+  --tone-warning-foreground: #fde68a;
+  --tone-danger-bg: rgba(251, 113, 133, 0.12);
+  --tone-danger-border: rgba(251, 113, 133, 0.28);
+  --tone-danger-foreground: #fecdd3;
+  --tone-info-bg: rgba(56, 189, 248, 0.12);
+  --tone-info-border: rgba(56, 189, 248, 0.28);
+  --tone-info-foreground: #bae6fd;
+  --score-high: #6ee7b7;
+  --score-medium: #fcd34d;
+  --score-low: #fda4af;
+  --hero-glow-1: rgba(80, 103, 242, 0.18);
+  --hero-glow-2: rgba(41, 182, 167, 0.1);
 }
 
 :root[data-theme="light"] {
-  --background: #f4efe7;
-  --foreground: #17202c;
-  --muted-foreground: #5f6979;
+  --background: #e7ece6;
+  --foreground: #151c28;
+  --muted-foreground: #5f6d82;
   --ring: #d96443;
-  --color-brand-300: #ef7f5a;
-  --color-brand-400: #e26b4a;
-  --color-brand-500: #cf5b3b;
-  --color-brand-600: #b94c2f;
-  --color-accent-500: #1f9a78;
-  --surface-1: rgba(255, 255, 255, 0.72);
-  --surface-2: rgba(255, 255, 255, 0.82);
-  --surface-3: rgba(255, 255, 255, 0.92);
-  --grid-line: rgba(23, 32, 44, 0.06);
-  --border-soft: rgba(23, 32, 44, 0.08);
-  --card-gradient-start: rgba(255, 255, 255, 0.88);
-  --card-gradient-end: rgba(255, 255, 255, 0.66);
-  --card-shadow: rgba(80, 60, 40, 0.09);
-  --header-bg: rgba(244, 239, 231, 0.86);
+  --color-brand-300: #5c78f5;
+  --color-brand-400: #3f62e6;
+  --color-brand-500: #3152cf;
+  --color-brand-600: #253ea1;
+  --color-accent-500: #1c978c;
+  --surface-1: rgba(242, 247, 250, 0.74);
+  --surface-2: rgba(248, 251, 253, 0.96);
+  --surface-3: rgba(231, 238, 245, 0.98);
+  --grid-line: rgba(21, 28, 40, 0.08);
+  --border-soft: rgba(21, 28, 40, 0.16);
+  --card-gradient-start: rgba(250, 252, 255, 0.98);
+  --card-gradient-end: rgba(239, 244, 250, 0.98);
+  --card-shadow: rgba(63, 86, 120, 0.12);
+  --header-bg: rgba(231, 236, 230, 0.96);
+  --panel-strong: rgba(237, 242, 248, 0.98);
+  --panel-strong-shadow: rgba(63, 86, 120, 0.1);
+  --tone-success-bg: rgba(31, 154, 120, 0.18);
+  --tone-success-border: rgba(31, 154, 120, 0.38);
+  --tone-success-foreground: #0d4f3d;
+  --tone-warning-bg: rgba(245, 158, 11, 0.18);
+  --tone-warning-border: rgba(245, 158, 11, 0.34);
+  --tone-warning-foreground: #7e4900;
+  --tone-danger-bg: rgba(225, 29, 72, 0.14);
+  --tone-danger-border: rgba(225, 29, 72, 0.28);
+  --tone-danger-foreground: #8e2239;
+  --tone-info-bg: rgba(14, 165, 233, 0.14);
+  --tone-info-border: rgba(14, 165, 233, 0.26);
+  --tone-info-foreground: #184f72;
+  --score-high: #157f63;
+  --score-medium: #a66300;
+  --score-low: #b9384f;
+  --hero-glow-1: rgba(49, 82, 207, 0.1);
+  --hero-glow-2: rgba(28, 151, 140, 0.06);
 }
 
 * {
@@ -56,24 +94,35 @@ body {
   margin: 0;
   min-height: 100vh;
   background:
-    radial-gradient(circle at top, rgba(255, 141, 105, 0.15), transparent 30%),
-    radial-gradient(circle at bottom left, rgba(52, 211, 153, 0.12), transparent 28%),
-    linear-gradient(180deg, var(--background) 0%, color-mix(in srgb, var(--background) 92%, black 8%) 55%, var(--background) 100%);
+    radial-gradient(circle at top left, var(--hero-glow-1), transparent 26%),
+    radial-gradient(circle at top right, var(--hero-glow-2), transparent 20%),
+    linear-gradient(180deg, var(--background) 0%, color-mix(in srgb, var(--background) 95%, black 5%) 100%);
   color: var(--foreground);
   font-family: var(--font-body), sans-serif;
   transition: background 180ms ease, color 180ms ease;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
 body::before {
   position: fixed;
   inset: 0;
   z-index: -1;
-  background-image:
-    linear-gradient(to right, transparent 0, transparent calc(100% - 1px), var(--grid-line) calc(100% - 1px)),
-    linear-gradient(to bottom, transparent 0, transparent calc(100% - 1px), var(--grid-line) calc(100% - 1px));
-  background-size: 80px 80px;
+  background:
+    repeating-linear-gradient(to bottom, transparent 0, transparent 35px, var(--grid-line) 35px, var(--grid-line) 36px),
+    linear-gradient(to right, transparent 0, transparent calc(100% - 1px), var(--grid-line) calc(100% - 1px));
+  background-size: 100% 100%, 128px 128px;
   content: "";
-  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.32), transparent 85%);
+  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.22), transparent 88%);
+}
+
+body::after {
+  position: fixed;
+  inset: auto 0 0 0;
+  z-index: -1;
+  height: 14rem;
+  background: linear-gradient(180deg, transparent, rgba(10, 16, 30, 0.08));
+  content: "";
 }
 
 a {

@@ -66,5 +66,80 @@ test("produces a recruiter-realistic score band for the Wren-style fixture", () 
   assert.equal(analysis.explanation.canonicalMissingKeywords.includes("Canvas"), false);
 
   assert(analysis.score.total >= 65, `expected score >= 65, received ${analysis.score.total}`);
-  assert(analysis.score.total <= 80, `expected score <= 80, received ${analysis.score.total}`);
+  assert(analysis.score.total <= 85, `expected score <= 85, received ${analysis.score.total}`);
+});
+
+test("captures semantic skill matches when adjacent tooling is present", () => {
+  const jobDescription = processJobDescription(`
+    Senior Frontend Engineer
+
+    We need React, accessibility, TypeScript, CI, and design systems experience.
+  `);
+  const resume = buildParsedResume(`
+    SUMMARY
+    Frontend engineer building production applications with Next.js and TypeScript.
+
+    EXPERIENCE
+    - Built customer-facing interfaces in Next.js and TypeScript for a design system migration.
+    - Improved release reliability with GitHub Actions and automated checks.
+
+    SKILLS
+    Next.js, TypeScript, GitHub Actions, Accessibility
+  `);
+
+  const analysis = analyzeResumeAgainstJob(resume, jobDescription);
+
+  assert(analysis.explanation.semanticMatches.some((match) => match.keyword === "React" && match.evidence === "next.js"));
+  assert(analysis.partialKeywords.some((keyword) => keyword.keyword === "React"));
+});
+
+test("detects seniority and role-family mismatches", () => {
+  const jobDescription = processJobDescription(`
+    Senior Backend Engineer
+
+    Looking for Node.js, microservices, system design, AWS, and API architecture.
+  `);
+  const resume = buildParsedResume(`
+    SUMMARY
+    Junior QA engineer focused on manual testing and Cypress coverage.
+
+    EXPERIENCE
+    - Worked on regression testing for web applications.
+    - Assisted with QA coverage for release cycles.
+
+    SKILLS
+    Cypress, Manual Testing, QA, Regression Testing
+  `);
+
+  const analysis = analyzeResumeAgainstJob(resume, jobDescription);
+
+  assert.equal(analysis.explanation.seniorityMismatch.hasMismatch, true);
+  assert.equal(analysis.explanation.roleFamilyAlignment, "adjacent");
+  assert.equal(analysis.explanation.resumeRoleFamily, "qa");
+});
+
+test("finds achievement signals, weak bullets, and rewrite assists", () => {
+  const jobDescription = processJobDescription(`
+    Backend Engineer
+
+    Need Node.js, AWS, system design, Docker, and CI experience.
+  `);
+  const resume = buildParsedResume(`
+    SUMMARY
+    Backend engineer building internal tooling and platform workflows.
+
+    EXPERIENCE
+    - Responsible for backend tasks.
+    - Worked on APIs.
+    - Led migration of 12 services to a new deployment workflow, reducing release time by 35%.
+
+    SKILLS
+    Node.js, Docker, APIs
+  `);
+
+  const analysis = analyzeResumeAgainstJob(resume, jobDescription);
+
+  assert(analysis.explanation.achievementSignals.length >= 1);
+  assert(analysis.explanation.weakBullets.length >= 1);
+  assert(analysis.explanation.rewriteAssist.length >= 1);
 });

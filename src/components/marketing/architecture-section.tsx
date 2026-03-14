@@ -30,11 +30,11 @@ const scenarios = [
 export function ArchitectureSection() {
   return (
     <section id="scenarios" className="px-6 py-20 lg:px-8">
-      <div className="mx-auto grid max-w-7xl gap-6 lg:grid-cols-[0.92fr_1.08fr]">
-        <Card>
+      <div className="mx-auto grid max-w-7xl gap-10 border-t border-[var(--border-soft)] pt-8 lg:grid-cols-[0.92fr_1.08fr]">
+        <div className="lg:sticky lg:top-28 lg:self-start">
           <p className="text-sm font-semibold uppercase tracking-[0.24em] text-[var(--color-brand-300)]">How it helps</p>
-          <h2 className="mt-4 font-heading text-4xl text-[var(--foreground)] sm:text-5xl">
-            Built around the moments when resume feedback is most useful.
+          <h2 className="mt-4 font-heading text-4xl font-semibold text-[var(--foreground)] sm:text-5xl">
+            Built around the moments when resume feedback is actually useful.
           </h2>
           <p className="mt-5 text-base leading-8 text-[var(--muted-foreground)]">
             Resume Signal works best when you already have a draft and need a clear next move. It helps you decide what
@@ -47,23 +47,30 @@ export function ArchitectureSection() {
               "Bring two resume versions when you want to know which one is actually stronger.",
               "Bring repeated applications over time when you want a private history of what is improving."
             ].map((item, index) => (
-              <div key={item} className="flex gap-4 rounded-2xl border border-[var(--border-soft)] bg-[var(--surface-2)] p-4">
-                <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[var(--color-brand-500)] font-semibold text-white">
+              <div key={item} className="flex gap-4 border-t border-[var(--border-soft)] pt-4">
+                <div className="flex size-8 shrink-0 items-center justify-center rounded-full border border-[var(--border-soft)] text-sm font-semibold text-[var(--foreground)]">
                   {index + 1}
                 </div>
                 <p className="text-sm leading-7 text-[var(--muted-foreground)]">{item}</p>
               </div>
             ))}
           </div>
-        </Card>
+        </div>
 
         <div className="grid gap-5">
-          {scenarios.map((scenario) => (
-            <Card key={scenario.title}>
-              <h3 className="text-2xl font-semibold text-[var(--foreground)]">{scenario.title}</h3>
+          {scenarios.map((scenario, index) => (
+            <Card key={scenario.title} className="shadow-none">
+              <div className="flex items-start justify-between gap-4">
+                <h3 className="max-w-2xl font-heading text-3xl font-semibold leading-tight text-[var(--foreground)]">
+                  {scenario.title}
+                </h3>
+                <span className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--muted-foreground)]">
+                  Use case 0{index + 1}
+                </span>
+              </div>
               <div className="mt-5 space-y-3">
                 {scenario.points.map((item) => (
-                  <div key={item} className="rounded-2xl border border-[var(--border-soft)] bg-[var(--surface-2)] px-4 py-3">
+                  <div key={item} className="border-t border-[var(--border-soft)] pt-3">
                     <p className="text-sm leading-7 text-[var(--muted-foreground)]">{item}</p>
                   </div>
                 ))}

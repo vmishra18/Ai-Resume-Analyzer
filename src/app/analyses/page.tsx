@@ -42,13 +42,13 @@ export default async function AnalysesPage() {
 
   return (
     <section className="px-6 py-16 lg:px-8 lg:py-20">
-      <div className="mx-auto max-w-7xl">
+      <div className="mx-auto max-w-7xl border-t border-[var(--border-soft)] pt-8">
         <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.24em] text-[var(--color-brand-300)]">
               Analysis history
             </p>
-            <h1 className="mt-4 font-heading text-4xl text-[var(--foreground)] sm:text-5xl">
+            <h1 className="mt-4 font-heading text-4xl font-semibold text-[var(--foreground)] sm:text-5xl">
               Revisit past analyses and keep track of what is improving.
             </h1>
             <p className="mt-5 max-w-3xl text-base leading-8 text-[var(--muted-foreground)]">
@@ -67,11 +67,11 @@ export default async function AnalysesPage() {
         </div>
 
         <div className="mt-6 grid gap-6 xl:grid-cols-[0.8fr_1.2fr]">
-          <Card>
+          <Card className="shadow-none">
             <p className="text-sm font-semibold uppercase tracking-[0.24em] text-[var(--color-brand-300)]">
               Recent trend
             </p>
-            <h2 className="mt-4 text-2xl font-semibold text-[var(--foreground)]">Latest score movement</h2>
+            <h2 className="mt-4 font-heading text-3xl font-semibold text-[var(--foreground)]">Latest score movement</h2>
             <p className="mt-3 text-sm leading-7 text-[var(--muted-foreground)]">
               See whether your latest resume changes are improving the overall match.
             </p>
@@ -86,11 +86,11 @@ export default async function AnalysesPage() {
             </div>
           </Card>
 
-          <Card>
+          <Card className="shadow-none">
             <p className="text-sm font-semibold uppercase tracking-[0.24em] text-[var(--color-brand-300)]">
               Useful at a glance
             </p>
-            <h2 className="mt-4 text-2xl font-semibold text-[var(--foreground)]">What history helps you do</h2>
+            <h2 className="mt-4 font-heading text-3xl font-semibold text-[var(--foreground)]">What history helps you do</h2>
             <div className="mt-5 space-y-3">
               {[
                 "See which resume changes improved the score.",
@@ -98,7 +98,7 @@ export default async function AnalysesPage() {
                 "Spot failed uploads that may need a cleaner source file.",
                 "Keep a clearer record of the roles you have already targeted."
               ].map((item) => (
-                <div key={item} className="rounded-2xl border border-white/8 bg-white/4 px-4 py-3">
+                <div key={item} className="border-t border-[var(--border-soft)] pt-3">
                   <p className="text-sm leading-7 text-[var(--muted-foreground)]">{item}</p>
                 </div>
               ))}

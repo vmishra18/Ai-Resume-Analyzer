@@ -61,12 +61,12 @@ export function HistorySummary({
         const Icon = item.icon;
 
         return (
-          <Card key={item.label}>
+          <Card key={item.label} className="shadow-none">
             <div className="flex items-center gap-2 text-[var(--muted-foreground)]">
               <Icon className="size-4" />
               <p className="text-xs uppercase tracking-[0.18em]">{item.label}</p>
             </div>
-            <p className="mt-4 font-heading text-4xl text-[var(--foreground)]">{item.value}</p>
+            <p className="mt-4 font-heading text-5xl leading-none text-[var(--foreground)]">{item.value}</p>
             <p className="mt-2 text-sm leading-7 text-[var(--muted-foreground)]">{item.detail}</p>
           </Card>
         );

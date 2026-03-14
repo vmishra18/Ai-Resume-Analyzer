@@ -10,9 +10,9 @@ interface KeywordGroupProps {
 }
 
 const toneStyles = {
-  success: "border-emerald-400/20 bg-emerald-400/10 text-emerald-100",
-  warning: "border-amber-400/20 bg-amber-400/10 text-amber-100",
-  danger: "border-rose-400/20 bg-rose-400/10 text-rose-100",
+  success: "border-[var(--tone-success-border)] bg-[var(--tone-success-bg)] text-[var(--tone-success-foreground)]",
+  warning: "border-[var(--tone-warning-border)] bg-[var(--tone-warning-bg)] text-[var(--tone-warning-foreground)]",
+  danger: "border-[var(--tone-danger-border)] bg-[var(--tone-danger-bg)] text-[var(--tone-danger-foreground)]",
   neutral: "border-[var(--border-soft)] bg-[var(--surface-2)] text-[var(--foreground)]"
 } as const;
 
@@ -33,7 +33,7 @@ export function KeywordGroup({
           visibleItems.map((item) => (
             <span
               key={item.id}
-              className={`rounded-full border px-3 py-1 text-sm ${toneStyles[tone]}`}
+              className={`rounded-[12px] border px-3 py-1.5 text-sm font-medium ${toneStyles[tone]}`}
             >
               {item.label}
             </span>

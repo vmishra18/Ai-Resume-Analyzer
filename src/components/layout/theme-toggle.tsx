@@ -15,10 +15,12 @@ export function ThemeToggle() {
       size="sm"
       onClick={toggleTheme}
       aria-label="Toggle theme"
-      className="min-w-0"
+      className="min-w-0 px-3"
     >
       {theme === "dark" ? <SunMedium className="size-4" /> : <MoonStar className="size-4" />}
-      <span className="hidden xl:inline">{theme === "dark" ? "Light mode" : "Dark mode"}</span>
+      <span className="hidden font-mono text-[11px] uppercase tracking-[0.16em] xl:inline">
+        {theme === "dark" ? "Light mode" : "Dark mode"}
+      </span>
     </Button>
   );
 }

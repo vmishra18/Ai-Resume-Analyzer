@@ -12,12 +12,12 @@ import {
 } from "recharts";
 
 const barColors = [
-  "#f56a48",
-  "#ff936f",
-  "#34d399",
-  "#38bdf8",
-  "#fbbf24",
-  "#a78bfa"
+  "#5067f2",
+  "#7f91ff",
+  "#29b6a7",
+  "#5f7a97",
+  "#f0a12d",
+  "#8b73d7"
 ];
 
 interface ScoreBreakdownChartProps {
@@ -46,15 +46,15 @@ export function ScoreBreakdownChart({ data }: ScoreBreakdownChartProps) {
             allowDecimals={false}
           />
           <Tooltip
-            cursor={{ fill: "var(--surface-2)" }}
+            cursor={{ fill: "var(--surface-1)" }}
             contentStyle={{
-              background: "var(--background)",
+              background: "var(--panel-strong)",
               border: "1px solid var(--border-soft)",
-              borderRadius: "18px",
+              borderRadius: "14px",
               color: "var(--foreground)"
             }}
           />
-          <Bar dataKey="value" radius={[12, 12, 6, 6]}>
+          <Bar dataKey="value" radius={[10, 10, 0, 0]}>
             {data.map((entry, index) => (
               <Cell key={entry.label} fill={barColors[index % barColors.length]} />
             ))}
