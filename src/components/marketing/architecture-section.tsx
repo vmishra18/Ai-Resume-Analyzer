@@ -29,7 +29,7 @@ const scenarios = [
 
 export function ArchitectureSection() {
   return (
-    <section id="scenarios" className="px-6 py-20 lg:px-8">
+    <section id="scenarios" className="px-6 py-24 lg:px-8">
       <div className="mx-auto grid max-w-7xl gap-10 border-t border-[var(--border-soft)] pt-8 lg:grid-cols-[0.92fr_1.08fr]">
         <div className="lg:sticky lg:top-28 lg:self-start">
           <p className="text-sm font-semibold uppercase tracking-[0.24em] text-[var(--color-brand-300)]">How it helps</p>
@@ -41,14 +41,14 @@ export function ArchitectureSection() {
             to keep, what to rewrite, and which version is ready to send.
           </p>
 
-          <div className="mt-8 space-y-4">
+          <div className="mt-10 space-y-4">
             {[
               "Bring one resume and one job description when you need a quick confidence check.",
               "Bring two resume versions when you want to know which one is actually stronger.",
               "Bring repeated applications over time when you want a private history of what is improving."
             ].map((item, index) => (
-              <div key={item} className="flex gap-4 border-t border-[var(--border-soft)] pt-4">
-                <div className="flex size-8 shrink-0 items-center justify-center rounded-full border border-[var(--border-soft)] text-sm font-semibold text-[var(--foreground)]">
+              <div key={item} className="flex gap-4 rounded-[18px] border border-[var(--border-soft)] bg-[rgba(18,28,48,0.48)] p-4">
+                <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[var(--surface-2)] text-sm font-semibold text-[var(--foreground)]">
                   {index + 1}
                 </div>
                 <p className="text-sm leading-7 text-[var(--muted-foreground)]">{item}</p>
@@ -68,9 +68,9 @@ export function ArchitectureSection() {
                   Use case 0{index + 1}
                 </span>
               </div>
-              <div className="mt-5 space-y-3">
+              <div className="mt-6 space-y-3">
                 {scenario.points.map((item) => (
-                  <div key={item} className="border-t border-[var(--border-soft)] pt-3">
+                  <div key={item} className="rounded-[14px] bg-[rgba(18,28,48,0.54)] px-4 py-3">
                     <p className="text-sm leading-7 text-[var(--muted-foreground)]">{item}</p>
                   </div>
                 ))}

@@ -25,7 +25,7 @@ const features = [
 
 export function FeatureGrid() {
   return (
-    <section id="features" className="px-6 py-20 lg:px-8">
+    <section id="features" className="px-6 py-24 lg:px-8">
       <div className="mx-auto max-w-7xl border-t border-[var(--border-soft)] pt-8">
         <div className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr]">
           <div className="max-w-md">
@@ -40,21 +40,24 @@ export function FeatureGrid() {
           </p>
         </div>
 
-        <div className="mt-12 grid gap-x-10 gap-y-8 md:grid-cols-2">
+        <div className="mt-14 grid gap-5 md:grid-cols-2">
           {features.map((feature, index) => {
             const Icon = feature.icon;
 
             return (
-              <div key={feature.title} className="border-t border-[var(--border-soft)] pt-5">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="inline-flex items-center gap-3">
-                    <Icon className="size-5 text-[var(--color-brand-300)]" />
-                    <span className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--muted-foreground)]">
-                      0{index + 1}
-                    </span>
+              <div
+                key={feature.title}
+                className="rounded-[24px] border border-[var(--border-soft)] bg-[linear-gradient(180deg,rgba(18,28,48,0.72),rgba(12,19,34,0.94))] p-6"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="flex size-11 items-center justify-center rounded-[14px] bg-[rgba(80,103,242,0.14)] text-[var(--color-brand-300)]">
+                    <Icon className="size-5" />
                   </div>
+                  <span className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--muted-foreground)]">
+                    0{index + 1}
+                  </span>
                 </div>
-                <h3 className="mt-5 font-heading text-3xl font-semibold leading-tight text-[var(--foreground)]">
+                <h3 className="mt-6 font-heading text-3xl font-semibold leading-tight text-[var(--foreground)]">
                   {feature.title}
                 </h3>
                 <p className="mt-3 max-w-md text-sm leading-7 text-[var(--muted-foreground)]">{feature.description}</p>

@@ -5,15 +5,15 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-[12px] text-sm font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)] disabled:pointer-events-none disabled:opacity-50",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-[14px] text-sm font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)] disabled:pointer-events-none disabled:opacity-50",
   {
     variants: {
       variant: {
         default:
-          "bg-[var(--color-brand-500)] text-white shadow-[0_10px_24px_rgba(49,82,207,0.24)] hover:-translate-y-0.5 hover:bg-[var(--color-brand-600)]",
+          "bg-[linear-gradient(135deg,var(--color-brand-500),color-mix(in_srgb,var(--color-brand-500)_76%,white_24%))] text-white shadow-[0_14px_30px_rgba(49,82,207,0.22)] hover:-translate-y-0.5 hover:shadow-[0_18px_34px_rgba(49,82,207,0.28)]",
         secondary:
-          "border border-[var(--border-soft)] bg-[var(--surface-2)] text-[var(--foreground)] hover:bg-[var(--surface-3)]",
-        ghost: "text-[var(--foreground)] hover:bg-[var(--surface-1)]"
+          "border border-[var(--border-soft)] bg-[color-mix(in_srgb,var(--surface-2)_80%,transparent)] text-[var(--foreground)] hover:bg-[var(--surface-3)]",
+        ghost: "text-[var(--foreground)] hover:bg-[color-mix(in_srgb,var(--surface-1)_88%,transparent)]"
       },
       size: {
         default: "h-11 px-5",
