@@ -42,24 +42,24 @@ export function Hero() {
       <div className="mx-auto max-w-7xl">
         <div className="grid gap-10 xl:grid-cols-[0.92fr_1.08fr]">
           <div className="max-w-3xl">
-            <Badge className="mb-6">AI research notebook</Badge>
+            <Badge className="mb-6">Resume review workspace</Badge>
             <h1 className="max-w-3xl font-heading text-5xl font-semibold leading-[0.92] text-[var(--foreground)] sm:text-6xl lg:text-[5.2rem]">
-              A workspace for reading resumes like research artifacts.
+              See how your resume reads before you apply.
             </h1>
             <p className="mt-6 max-w-2xl text-lg leading-8 text-[var(--muted-foreground)] sm:text-xl">
-              Instead of another ATS dashboard, Resume Signal turns each upload into a notebook of observations,
-              missing signals, and practical revisions you can act on.
+              Resume Signal compares your resume against a real job description, flags missing signals, and points you
+              toward the next edits worth making.
             </p>
 
             <div className="mt-8 flex flex-col gap-4 sm:flex-row">
               <Button asChild size="lg">
                 <Link href="/upload">
-                  Open a notebook
+                  Start analysis
                   <ArrowRight className="size-4" />
                 </Link>
               </Button>
               <Button asChild size="lg" variant="secondary">
-                <Link href="#scenarios">See workflows</Link>
+                <Link href="#scenarios">See how it works</Link>
               </Button>
             </div>
 
@@ -81,7 +81,7 @@ export function Hero() {
                 </p>
                 <h2 className="mt-4 font-heading text-3xl font-semibold text-[var(--foreground)]">Frontend Engineer</h2>
                 <p className="mt-3 text-sm leading-7 text-[var(--muted-foreground)]">
-                  Role-aligned notebook with scoring trace, fit summary, and revision cues.
+                  Saved report with scoring details, fit summary, and revision cues.
                 </p>
 
                 <div className="mt-8 space-y-4">
@@ -99,7 +99,7 @@ export function Hero() {
               <div className="p-6 lg:p-8">
                 <div className="flex items-center justify-between gap-4 border-b border-[var(--border-soft)] pb-4">
                   <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-[var(--muted-foreground)]">
-                    Observations
+                    Highlights
                   </p>
                   <div className="rounded-full border border-[var(--tone-success-border)] bg-[var(--tone-success-bg)] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--tone-success-foreground)]">
                     strong fit

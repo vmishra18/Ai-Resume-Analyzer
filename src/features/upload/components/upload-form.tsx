@@ -42,7 +42,7 @@ const analysisProgressStages = [
     detail: "Preparing bullet rewrites and improvement suggestions."
   },
   {
-    label: "Preparing notebook",
+    label: "Preparing report",
     detail: "Assembling the final analysis dashboard."
   }
 ] as const;
@@ -57,6 +57,7 @@ export function UploadForm({ userName }: UploadFormProps) {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [activeStageIndex, setActiveStageIndex] = useState(0);
+  const firstName = userName.trim().split(/\s+/)[0] || "there";
 
   const {
     register,
@@ -99,6 +100,19 @@ export function UploadForm({ userName }: UploadFormProps) {
       shouldDirty: true,
       shouldTouch: true
     });
+  };
+
+  const handleDragState = (event: React.DragEvent<HTMLButtonElement>, dragging: boolean) => {
+    event.preventDefault();
+    setIsDragging(dragging);
+  };
+
+  const handleDrop = (event: React.DragEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+    setIsDragging(false);
+
+    const file = event.dataTransfer.files?.[0] ?? null;
+    handleFileSelection(file);
   };
 
   const onSubmit = handleSubmit(async (values) => {
@@ -156,8 +170,8 @@ export function UploadForm({ userName }: UploadFormProps) {
             Upload your resume and start a new analysis.
           </h1>
           <p className="mt-5 max-w-2xl text-base leading-8 text-[var(--muted-foreground)]">
-            {userName.split(" ")[0]}, add your resume, paste the job description if you want a role-specific match, and
-            we&apos;ll prepare your results right away.
+            {firstName}, add your resume, paste the job description if you want role-specific feedback, and we&apos;ll
+            prepare your report right away.
           </p>
 
           <div className="mt-8 grid gap-3">
@@ -203,25 +217,10 @@ export function UploadForm({ userName }: UploadFormProps) {
                     : "border-[var(--border-soft)] bg-[var(--surface-1)] hover:bg-[var(--surface-2)]"
                 }`}
                 onClick={() => fileInputRef.current?.click()}
-                onDragEnter={(event) => {
-                  event.preventDefault();
-                  setIsDragging(true);
-                }}
-                onDragOver={(event) => {
-                  event.preventDefault();
-                  setIsDragging(true);
-                }}
-                onDragLeave={(event) => {
-                  event.preventDefault();
-                  setIsDragging(false);
-                }}
-                onDrop={(event) => {
-                  event.preventDefault();
-                  setIsDragging(false);
-
-                  const file = event.dataTransfer.files?.[0] ?? null;
-                  handleFileSelection(file);
-                }}
+                onDragEnter={(event) => handleDragState(event, true)}
+                onDragOver={(event) => handleDragState(event, true)}
+                onDragLeave={(event) => handleDragState(event, false)}
+                onDrop={handleDrop}
               >
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
                   <div className="flex size-14 items-center justify-center rounded-2xl bg-[linear-gradient(135deg,var(--color-brand-500),var(--color-accent-500))] text-white shadow-[0_14px_35px_rgba(245,106,72,0.22)]">
@@ -239,8 +238,8 @@ export function UploadForm({ userName }: UploadFormProps) {
                 {selectedFile ? (
                   <div className="mt-5 rounded-2xl border border-[var(--border-soft)] bg-[var(--surface-2)] p-4">
                     <div className="flex items-center gap-3">
-                        <FileText className="size-5 text-[var(--color-brand-300)]" />
-                        <div>
+                      <FileText className="size-5 text-[var(--color-brand-300)]" />
+                      <div>
                         <p className="text-sm font-medium text-[var(--foreground)]">{selectedFile.name}</p>
                         <p className="text-xs text-[var(--muted-foreground)]">{formatBytes(selectedFile.size)}</p>
                       </div>
@@ -258,7 +257,7 @@ export function UploadForm({ userName }: UploadFormProps) {
                 <p className="mt-3 text-sm text-[var(--tone-danger-foreground)]">{errors.resume.message}</p>
               ) : (
                 <p className="mt-3 text-sm text-[var(--muted-foreground)]">
-                  We&apos;ll extract the text from your resume and prepare your analysis immediately.
+                  We&apos;ll extract the text from your resume and prepare the report immediately.
                 </p>
               )}
             </div>

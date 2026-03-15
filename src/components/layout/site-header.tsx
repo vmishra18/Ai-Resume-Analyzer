@@ -51,7 +51,7 @@ export function SiteHeader({ currentUser }: SiteHeaderProps) {
                 {siteConfig.name}
               </p>
               <p className="max-w-[12rem] truncate font-mono text-[11px] uppercase tracking-[0.18em] text-[var(--muted-foreground)] sm:max-w-[18rem] lg:max-w-[15rem] xl:max-w-none">
-                analysis notebook
+                resume review workspace
               </p>
             </div>
           </Link>

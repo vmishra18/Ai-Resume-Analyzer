@@ -28,11 +28,11 @@ export function RoadmapSection() {
             <div>
               <p className="text-sm font-semibold uppercase tracking-[0.24em] text-[var(--color-brand-300)]">Compare</p>
               <h2 className="mt-4 font-heading text-4xl text-[var(--foreground)] sm:text-5xl">
-                Keep better versions and stop guessing which resume should go out.
+                Compare saved reports when two resume drafts are close.
               </h2>
               <p className="mt-5 max-w-2xl text-lg leading-8 text-[var(--muted-foreground)]">
-                Sign in once, keep your analyses private, and compare two saved reports whenever you want to decide
-                which version deserves the next application.
+                Keep your analyses in one place, reopen them later, and compare two saved reports when you need a quick
+                answer on which draft is stronger for the role.
               </p>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <Button asChild size="lg">

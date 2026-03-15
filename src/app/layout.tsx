@@ -9,7 +9,7 @@ import "@/app/globals.css";
 export const metadata: Metadata = {
   title: "Resume Signal",
   description:
-    "Upload a resume, compare it to a job description, and get a polished match report with practical suggestions."
+    "Upload a resume, compare it to a job description, and get a clear report with practical suggestions."
 };
 
 const themeScript = `

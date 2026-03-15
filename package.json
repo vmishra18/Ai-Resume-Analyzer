@@ -2,7 +2,7 @@
   "name": "ats-resume-analyzer",
   "version": "0.1.0",
   "private": true,
-  "description": "Production-style ATS Resume Analyzer built with Next.js, Prisma, and deterministic NLP.",
+  "description": "Resume review workspace for comparing resumes against job descriptions with explainable scoring.",
   "scripts": {
     "dev": "next dev --webpack",
     "build": "next build --webpack",
