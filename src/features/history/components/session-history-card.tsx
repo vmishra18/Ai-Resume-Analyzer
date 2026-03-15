@@ -93,10 +93,10 @@ export function SessionHistoryCard({
           </p>
         </div>
 
-        <div className="mt-6 grid gap-3">
+      <div className="mt-6 grid gap-3">
           <Button asChild className="w-full">
-            <Link href={`/analyses/${id}`}>
-              Open dashboard
+            <Link href={status === "PENDING" ? `/analyses/${id}/review` : `/analyses/${id}`}>
+              {status === "PENDING" ? "Review keywords" : "Open dashboard"}
               <ArrowRight className="size-4" />
             </Link>
           </Button>

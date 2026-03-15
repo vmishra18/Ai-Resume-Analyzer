@@ -42,8 +42,8 @@ const analysisProgressStages = [
     detail: "Preparing bullet rewrites and improvement suggestions."
   },
   {
-    label: "Preparing report",
-    detail: "Assembling the final analysis dashboard."
+    label: "Preparing next step",
+    detail: "Setting up the keyword review or final report."
   }
 ] as const;
 

@@ -26,7 +26,8 @@ export default async function AnalysisDetailPage({ params }: AnalysisDetailPageP
       {...dashboardData}
       actions={{
         historyHref: "/analyses",
-        uploadHref: "/upload"
+        uploadHref: "/upload",
+        reviewHref: dashboardData.keywordReview && dashboardData.overallScore === null ? `/analyses/${id}/review` : undefined
       }}
     />
   );
