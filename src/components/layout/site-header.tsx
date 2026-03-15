@@ -39,29 +39,29 @@ export function SiteHeader({ currentUser }: SiteHeaderProps) {
   }
 
   return (
-    <header className="sticky top-0 z-30 border-b border-[var(--border-soft)] bg-[var(--header-bg)] backdrop-blur-xl">
-      <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between gap-3">
+    <header className="sticky top-0 z-30 border-b border-[var(--border-soft)] bg-[color-mix(in_srgb,var(--header-bg)_86%,transparent)] backdrop-blur-2xl">
+      <div className="mx-auto max-w-7xl px-4 py-3 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between gap-4">
           <Link href="/" className="flex min-w-0 items-center gap-3">
-            <div className="flex size-11 shrink-0 items-center justify-center rounded-[12px] border border-[var(--border-soft)] bg-[var(--panel-strong)] text-sm font-bold text-[var(--foreground)] shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]">
+            <div className="flex size-11 shrink-0 items-center justify-center rounded-[14px] border border-[var(--border-soft)] bg-[color-mix(in_srgb,var(--panel-strong)_84%,transparent)] text-sm font-bold text-[var(--foreground)] shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]">
               RS
             </div>
             <div className="min-w-0">
               <p className="font-heading text-[14px] font-semibold tracking-[0.14em] text-[var(--foreground)] uppercase">
                 {siteConfig.name}
               </p>
-              <p className="max-w-[12rem] truncate font-mono text-[11px] uppercase tracking-[0.18em] text-[var(--muted-foreground)] sm:max-w-[18rem] lg:max-w-[15rem] xl:max-w-none">
-                resume review workspace
+              <p className="max-w-[12rem] truncate text-[12px] tracking-[0.12em] text-[var(--muted-foreground)] sm:max-w-[18rem] lg:max-w-[15rem] xl:max-w-none">
+                Clear resume feedback for every application
               </p>
             </div>
           </Link>
 
-          <nav className="hidden items-center gap-2 lg:flex">
+          <nav className="hidden items-center gap-1 rounded-full border border-[var(--border-soft)] bg-[color-mix(in_srgb,var(--surface-1)_74%,transparent)] p-1 lg:flex">
             {navItems.map((item) => (
               <a
                 key={item.href}
                 href={item.resolvedHref}
-                className="rounded-[10px] px-3 py-2 font-mono text-[11px] uppercase tracking-[0.16em] text-[var(--muted-foreground)] transition hover:bg-[var(--surface-1)] hover:text-[var(--foreground)]"
+                className="rounded-full px-4 py-2 text-[12px] font-semibold tracking-[0.14em] text-[var(--muted-foreground)] transition hover:bg-[var(--surface-2)] hover:text-[var(--foreground)]"
               >
                 {item.label}
               </a>
@@ -75,7 +75,7 @@ export function SiteHeader({ currentUser }: SiteHeaderProps) {
                 <Button asChild variant="ghost" size="sm">
                   <Link href="/analyses">History</Link>
                 </Button>
-                <div className="max-w-[9rem] truncate rounded-[10px] border border-[var(--border-soft)] bg-[var(--surface-1)] px-3 py-2 font-mono text-[11px] uppercase tracking-[0.16em] text-[var(--muted-foreground)] xl:max-w-[11rem]">
+                <div className="max-w-[9rem] truncate rounded-full border border-[var(--border-soft)] bg-[color-mix(in_srgb,var(--surface-1)_78%,transparent)] px-4 py-2 text-[12px] font-medium tracking-[0.08em] text-[var(--muted-foreground)] xl:max-w-[11rem]">
                   {displayName}
                 </div>
                 <Button variant="ghost" size="sm" onClick={handleLogout} className="hidden xl:inline-flex">
@@ -117,7 +117,7 @@ export function SiteHeader({ currentUser }: SiteHeaderProps) {
                 <a
                   key={item.href}
                   href={item.resolvedHref}
-                  className="rounded-[10px] bg-[var(--surface-1)] px-3 py-3 font-mono text-[11px] uppercase tracking-[0.16em] text-[var(--foreground)]"
+                  className="rounded-[14px] bg-[color-mix(in_srgb,var(--surface-1)_78%,transparent)] px-4 py-3 text-sm font-medium text-[var(--foreground)]"
                   onClick={() => setIsMobileOpen(false)}
                 >
                   {item.label}
@@ -126,7 +126,7 @@ export function SiteHeader({ currentUser }: SiteHeaderProps) {
 
               {currentUser ? (
                 <>
-                  <div className="pt-2 font-mono text-[11px] uppercase tracking-[0.16em] text-[var(--muted-foreground)]">
+                  <div className="pt-2 text-xs uppercase tracking-[0.14em] text-[var(--muted-foreground)]">
                     Signed in as {displayName}
                   </div>
                   <Link

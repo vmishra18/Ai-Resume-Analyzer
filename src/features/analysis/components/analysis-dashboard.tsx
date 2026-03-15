@@ -503,7 +503,7 @@ export function AnalysisDashboard({
                   const Icon = item.icon;
 
                   return (
-                    <div key={item.label} className="rounded-[16px] border border-[var(--border-soft)] bg-[var(--surface-1)] px-4 py-4">
+                    <div key={item.label} className="rounded-[16px] border border-[var(--border-soft)] bg-[color-mix(in_srgb,var(--surface-1)_76%,transparent)] px-4 py-4">
                       <div className="flex items-center gap-2 text-[var(--muted-foreground)]">
                         <Icon className="size-4" />
                         <p className="font-mono text-[11px] uppercase tracking-[0.18em]">{item.label}</p>
@@ -636,15 +636,15 @@ export function AnalysisDashboard({
             ) : null}
           </div>
 
-          <div className="mt-6 flex flex-wrap gap-2">
+          <div className="mt-6 flex flex-wrap gap-2 border-b border-[var(--border-soft)] pb-3">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
                 type="button"
-                className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${
+                className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
                   activeTab === tab.id
-                    ? "border-[var(--color-brand-500)] bg-[rgba(245,106,72,0.12)] text-[var(--foreground)]"
-                    : "border-[var(--border-soft)] bg-[var(--surface-1)] text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
+                    ? "bg-[rgba(245,106,72,0.12)] text-[var(--foreground)]"
+                    : "text-[var(--muted-foreground)] hover:bg-[color-mix(in_srgb,var(--surface-1)_78%,transparent)] hover:text-[var(--foreground)]"
                 }`}
                 onClick={() => setActiveTab(tab.id)}
               >
